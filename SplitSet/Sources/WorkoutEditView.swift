@@ -5,10 +5,32 @@ struct WorkoutEditView: View {
     @Environment(\.dismiss) private var dismiss
     @Environment(\.modelContext) private var modelContext
 
-    @State private var name = ""
-    @State private var trackWeights = false
-    @State private var exercises: [ExerciseModel] = []
+    private let editingWorkout: WorkoutModel?
+
+    @State private var name: String
+    @State private var trackWeights: Bool
+    @State private var exercises: [ExerciseModel]
     @State private var showingAddExercise = false
+    @State private var editingExercise: ExerciseModel?
+
+    // Create mode
+    init() {
+        editingWorkout = nil
+        _name = State(initialValue: "")
+        _trackWeights = State(initialValue: false)
+        _exercises = State(initialValue: [])
+    }
+
+    // Edit mode
+    init(editing workout: WorkoutModel) {
+        editingWorkout = workout
+        _name = State(initialValue: workout.name)
+        _trackWeights = State(initialValue: workout.trackWeights)
+        _exercises = State(initialValue: workout.exercises.sorted { $0.order < $1.order })
+    }
+
+    private var isEditing: Bool { editingWorkout != nil }
+    private var title: String { isEditing ? "Edit Workout" : "New Workout" }
 
     var body: some View {
         NavigationStack {
@@ -21,17 +43,32 @@ struct WorkoutEditView: View {
                     Toggle("Track weights on watch", isOn: $trackWeights)
                 }
 
-                Section("Exercises") {
+                Section {
                     ForEach(exercises) { exercise in
-                        VStack(alignment: .leading, spacing: 2) {
-                            Text(exercise.name).font(.headline)
-                            Text(setsSummary(exercise))
-                                .font(.caption)
-                                .foregroundStyle(.secondary)
+                        Button {
+                            editingExercise = exercise
+                        } label: {
+                            HStack {
+                                VStack(alignment: .leading, spacing: 2) {
+                                    Text(exercise.name)
+                                        .font(.headline)
+                                        .foregroundStyle(.primary)
+                                    Text(setsSummary(exercise))
+                                        .font(.caption)
+                                        .foregroundStyle(.secondary)
+                                }
+                                Spacer()
+                                Image(systemName: "chevron.right")
+                                    .imageScale(.small)
+                                    .foregroundStyle(.tertiary)
+                            }
+                            .padding(.vertical, 2)
                         }
-                        .padding(.vertical, 2)
                     }
                     .onDelete { offsets in
+                        if isEditing {
+                            offsets.map { exercises[$0] }.forEach { modelContext.delete($0) }
+                        }
                         exercises.remove(atOffsets: offsets)
                         reorder()
                     }
@@ -45,34 +82,53 @@ struct WorkoutEditView: View {
                     } label: {
                         Label("Add Exercise", systemImage: "plus")
                     }
+                } header: {
+                    HStack {
+                        Text("Exercises")
+                        Spacer()
+                        EditButton()
+                            .font(.caption)
+                            .textCase(nil)
+                    }
                 }
             }
-            .navigationTitle("New Workout")
+            .navigationTitle(title)
             .navigationBarTitleDisplayMode(.inline)
             .toolbar {
                 ToolbarItem(placement: .cancellationAction) {
                     Button("Cancel") { dismiss() }
                 }
                 ToolbarItem(placement: .confirmationAction) {
-                    Button("Save") {
-                        save()
-                    }
-                    .disabled(name.isEmpty)
+                    Button("Save") { save() }
+                        .disabled(name.isEmpty)
                 }
             }
             .sheet(isPresented: $showingAddExercise) {
                 ExerciseEditView { exercise in
                     exercise.order = exercises.count
+                    if isEditing { modelContext.insert(exercise) }
                     exercises.append(exercise)
                 }
+            }
+            .sheet(item: $editingExercise) { exercise in
+                ExerciseEditView(editing: exercise)
             }
         }
     }
 
+    // MARK: - Actions
+
     private func save() {
-        let workout = WorkoutModel(name: name, trackWeights: trackWeights)
-        workout.exercises = exercises
-        modelContext.insert(workout)
+        if let existing = editingWorkout {
+            existing.name = name
+            existing.trackWeights = trackWeights
+            existing.exercises = exercises
+            reorder()
+        } else {
+            let workout = WorkoutModel(name: name, trackWeights: trackWeights)
+            workout.exercises = exercises
+            modelContext.insert(workout)
+        }
         dismiss()
     }
 

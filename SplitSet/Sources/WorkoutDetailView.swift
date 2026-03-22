@@ -2,6 +2,7 @@ import SwiftUI
 
 struct WorkoutDetailView: View {
     let workout: WorkoutModel
+    @State private var showingEdit = false
 
     var body: some View {
         List {
@@ -32,6 +33,14 @@ struct WorkoutDetailView: View {
         }
         .navigationTitle(workout.name)
         .navigationBarTitleDisplayMode(.large)
+        .toolbar {
+            ToolbarItem(placement: .primaryAction) {
+                Button("Edit") { showingEdit = true }
+            }
+        }
+        .sheet(isPresented: $showingEdit) {
+            WorkoutEditView(editing: workout)
+        }
     }
 }
 

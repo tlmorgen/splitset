@@ -19,7 +19,30 @@ struct ExerciseEditView: View {
     @State private var sets: [ExerciseSetModel] = []
     @State private var editingSetIndex: Int?
 
+    private let editingExercise: ExerciseModel?
     var onSave: (ExerciseModel) -> Void
+
+    // Create mode
+    init(onSave: @escaping (ExerciseModel) -> Void) {
+        editingExercise = nil
+        self.onSave = onSave
+        _name = State(initialValue: "")
+        _notes = State(initialValue: "")
+        _varyPerSet = State(initialValue: false)
+        _sets = State(initialValue: [])
+    }
+
+    // Edit mode — skips uniform toggle, goes straight to per-set
+    init(editing exercise: ExerciseModel) {
+        editingExercise = exercise
+        self.onSave = { _ in }
+        _name = State(initialValue: exercise.name)
+        _notes = State(initialValue: exercise.notes ?? "")
+        _varyPerSet = State(initialValue: true)
+        _sets = State(initialValue: exercise.sets.sorted { $0.order < $1.order })
+    }
+
+    private var isEditing: Bool { editingExercise != nil }
 
     var body: some View {
         NavigationStack {
@@ -29,10 +52,12 @@ struct ExerciseEditView: View {
                 }
 
                 Section {
-                    Toggle("Vary per set", isOn: $varyPerSet.animation())
-                        .onChange(of: varyPerSet) { _, on in
-                            if on { expandToPerSet() }
-                        }
+                    if !isEditing {
+                        Toggle("Vary per set", isOn: $varyPerSet.animation())
+                            .onChange(of: varyPerSet) { _, on in
+                                if on { expandToPerSet() }
+                            }
+                    }
 
                     if varyPerSet {
                         perSetRows
@@ -56,17 +81,24 @@ struct ExerciseEditView: View {
                         .lineLimit(3...6)
                 }
             }
-            .navigationTitle("New Exercise")
+            .navigationTitle(isEditing ? "Edit Exercise" : "New Exercise")
             .navigationBarTitleDisplayMode(.inline)
             .toolbar {
                 ToolbarItem(placement: .cancellationAction) {
                     Button("Cancel") { dismiss() }
                 }
                 ToolbarItem(placement: .confirmationAction) {
-                    Button("Add") {
-                        let exercise = ExerciseModel(name: name, notes: notes.isEmpty ? nil : notes)
-                        exercise.sets = buildSets()
-                        onSave(exercise)
+                    Button(isEditing ? "Done" : "Add") {
+                        if let existing = editingExercise {
+                            existing.name = name
+                            existing.notes = notes.isEmpty ? nil : notes
+                            existing.sets = sets
+                            reorderSets()
+                        } else {
+                            let exercise = ExerciseModel(name: name, notes: notes.isEmpty ? nil : notes)
+                            exercise.sets = buildSets()
+                            onSave(exercise)
+                        }
                         dismiss()
                     }
                     .disabled(name.isEmpty)
