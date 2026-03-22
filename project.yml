@@ -17,10 +17,6 @@ targets:
     deploymentTarget: "17.0"
     sources:
       - path: SplitSet/Sources
-    resources:
-      - path: SplitSet/Resources
-        excludes:
-          - "*.entitlements"
     entitlements:
       path: SplitSet/Resources/SplitSet.entitlements
       properties:
@@ -48,10 +44,6 @@ targets:
     deploymentTarget: "10.0"
     sources:
       - path: SplitSetWatch/Sources
-    resources:
-      - path: SplitSetWatch/Resources
-        excludes:
-          - "*.entitlements"
     entitlements:
       path: SplitSetWatch/Resources/SplitSetWatch.entitlements
       properties:

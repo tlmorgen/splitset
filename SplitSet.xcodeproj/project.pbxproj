@@ -19,6 +19,7 @@
 		70906D6D0693B0A416BBCAB1 /* ExerciseModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = BFFE42AF0E3761B5EE47DAB3 /* ExerciseModel.swift */; };
 		726E1FF6C7674FC79CD18728 /* RestStepView.swift in Sources */ = {isa = PBXBuildFile; fileRef = EE1E2582CDC5AD51079283F1 /* RestStepView.swift */; };
 		772E835256709777483199E9 /* WatchConnectivityManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = F427988A76D984A1B88D51EC /* WatchConnectivityManager.swift */; };
+		802AA08FC03E973B46FF688B /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = E32FC19C9582464665C7D727 /* Assets.xcassets */; };
 		9237FD889A6162B4127BF4D4 /* WorkoutModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 761DE1D42EDE777650E362B3 /* WorkoutModel.swift */; };
 		97D4D42F0645CD23E403B3BD /* ExerciseSetEditView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 800F789A97786903C35D9974 /* ExerciseSetEditView.swift */; };
 		9ADAD09139AECB37406E4FAB /* WorkoutEditView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4B2E290D985E191C044229D3 /* WorkoutEditView.swift */; };
@@ -30,6 +31,7 @@
 		CC345DC97A5055A22E2F8E9B /* WeightPickerView.swift in Sources */ = {isa = PBXBuildFile; fileRef = C8C4F68A50CA1F8E686FBEA0 /* WeightPickerView.swift */; };
 		D8512D2E994CEB3557957EAC /* SplitSetWatchApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4244D368CF6271C246682DCB /* SplitSetWatchApp.swift */; };
 		EB8DFAB172F4903C07C40CB5 /* WorkoutDetailView.swift in Sources */ = {isa = PBXBuildFile; fileRef = EAA996EA1A38E1C469E6243A /* WorkoutDetailView.swift */; };
+		F9DCB27F2A5D15F2D64A45F0 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 95B3A4372F733B9C28BFCA5A /* Assets.xcassets */; };
 		FEB6CDE1911498DB671371E7 /* LiftStepView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3C2984A2D70E2B85905CF61B /* LiftStepView.swift */; };
 /* End PBXBuildFile section */
 
@@ -47,12 +49,14 @@
 		761DE1D42EDE777650E362B3 /* WorkoutModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WorkoutModel.swift; sourceTree = "<group>"; };
 		800F789A97786903C35D9974 /* ExerciseSetEditView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ExerciseSetEditView.swift; sourceTree = "<group>"; };
 		90430761F04405835894970D /* HealthKitManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HealthKitManager.swift; sourceTree = "<group>"; };
+		95B3A4372F733B9C28BFCA5A /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
 		A7EC45DA8FFFC54D9DF9899B /* WorkoutPlayerView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WorkoutPlayerView.swift; sourceTree = "<group>"; };
 		A804500CAB934D66DF62ED76 /* WorkoutListView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WorkoutListView.swift; sourceTree = "<group>"; };
 		BFFE42AF0E3761B5EE47DAB3 /* ExerciseModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ExerciseModel.swift; sourceTree = "<group>"; };
 		C8C4F68A50CA1F8E686FBEA0 /* WeightPickerView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WeightPickerView.swift; sourceTree = "<group>"; };
 		CBFCC0C65D9CC3E389495993 /* ContentView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ContentView.swift; sourceTree = "<group>"; };
 		DC7000F7EEBE037D122C4A6B /* SplitSet.app */ = {isa = PBXFileReference; includeInIndex = 0; lastKnownFileType = wrapper.application; path = SplitSet.app; sourceTree = BUILT_PRODUCTS_DIR; };
+		E32FC19C9582464665C7D727 /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
 		EAA996EA1A38E1C469E6243A /* WorkoutDetailView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WorkoutDetailView.swift; sourceTree = "<group>"; };
 		EE1E2582CDC5AD51079283F1 /* RestStepView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RestStepView.swift; sourceTree = "<group>"; };
 		F3F4E30F41BC81FD265DFE5D /* ExerciseSetModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ExerciseSetModel.swift; sourceTree = "<group>"; };
@@ -112,6 +116,7 @@
 		89940063715911090552BF9F /* Sources */ = {
 			isa = PBXGroup;
 			children = (
+				95B3A4372F733B9C28BFCA5A /* Assets.xcassets */,
 				CBFCC0C65D9CC3E389495993 /* ContentView.swift */,
 				90430761F04405835894970D /* HealthKitManager.swift */,
 				3C2984A2D70E2B85905CF61B /* LiftStepView.swift */,
@@ -139,6 +144,7 @@
 		99BF466718111734174D828A /* Sources */ = {
 			isa = PBXGroup;
 			children = (
+				E32FC19C9582464665C7D727 /* Assets.xcassets */,
 				F9D1DBD10DDE4E27C02DC641 /* ContentView.swift */,
 				28B136F7F55032C1DF7F9F5A /* ExerciseEditView.swift */,
 				BFFE42AF0E3761B5EE47DAB3 /* ExerciseModel.swift */,
@@ -163,6 +169,7 @@
 			buildConfigurationList = 9C8D9763692E9C31274CA387 /* Build configuration list for PBXNativeTarget "SplitSetWatch" */;
 			buildPhases = (
 				E4CB514F8871784C31D3167F /* Sources */,
+				2E98B410C794E36DAABE89FC /* Resources */,
 				A8968689EB621F4D6F332BD3 /* Frameworks */,
 			);
 			buildRules = (
@@ -182,6 +189,7 @@
 			buildConfigurationList = BC6AF91E5913F8537E3CAD15 /* Build configuration list for PBXNativeTarget "SplitSet" */;
 			buildPhases = (
 				68921E9A9BE361C53D13BF41 /* Sources */,
+				F5C877729965EBFFA2692F94 /* Resources */,
 				DEB4CBC289F958BCC87126B0 /* Frameworks */,
 			);
 			buildRules = (
@@ -229,6 +237,25 @@
 			);
 		};
 /* End PBXProject section */
+
+/* Begin PBXResourcesBuildPhase section */
+		2E98B410C794E36DAABE89FC /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				F9DCB27F2A5D15F2D64A45F0 /* Assets.xcassets in Resources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		F5C877729965EBFFA2692F94 /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				802AA08FC03E973B46FF688B /* Assets.xcassets in Resources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXResourcesBuildPhase section */
 
 /* Begin PBXSourcesBuildPhase section */
 		68921E9A9BE361C53D13BF41 /* Sources */ = {
