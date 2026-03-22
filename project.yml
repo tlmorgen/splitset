@@ -66,6 +66,7 @@ targets:
       properties:
         CFBundleDisplayName: SplitSet
         WKApplication: true
+        WKCompanionAppBundleIdentifier: com.tlmorgen.splitset
         NSHealthShareUsageDescription: "SplitSet reads heart rate during workouts."
         NSHealthUpdateUsageDescription: "SplitSet saves workout data to Health."
     settings:

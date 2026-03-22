@@ -1,5 +1,4 @@
 import SwiftUI
-import SplitSetCore
 
 struct ExerciseEditView: View {
     @Environment(\.dismiss) private var dismiss
@@ -17,10 +16,10 @@ struct ExerciseEditView: View {
     @State private var uniformRest = 60
 
     // Per-set mode
-    @State private var sets: [ExerciseSet] = []
+    @State private var sets: [ExerciseSetModel] = []
     @State private var editingSetIndex: Int?
 
-    var onSave: (Exercise) -> Void
+    var onSave: (ExerciseModel) -> Void
 
     var body: some View {
         NavigationStack {
@@ -65,7 +64,9 @@ struct ExerciseEditView: View {
                 }
                 ToolbarItem(placement: .confirmationAction) {
                     Button("Add") {
-                        onSave(Exercise(name: name, sets: buildSets(), notes: notes.isEmpty ? nil : notes))
+                        let exercise = ExerciseModel(name: name, notes: notes.isEmpty ? nil : notes)
+                        exercise.sets = buildSets()
+                        onSave(exercise)
                         dismiss()
                     }
                     .disabled(name.isEmpty)
@@ -75,7 +76,7 @@ struct ExerciseEditView: View {
                 get: { editingSetIndex.map { SetEditIndex(index: $0) } },
                 set: { editingSetIndex = $0?.index }
             )) { item in
-                ExerciseSetEditView(set: $sets[item.index], setNumber: item.index + 1)
+                ExerciseSetEditView(set: sets[item.index], setNumber: item.index + 1)
             }
         }
     }
@@ -115,8 +116,14 @@ struct ExerciseEditView: View {
                 }
                 .foregroundStyle(.primary)
             }
-            .onDelete { sets.remove(atOffsets: $0) }
-            .onMove { sets.move(fromOffsets: $0, toOffset: $1) }
+            .onDelete { offsets in
+                sets.remove(atOffsets: offsets)
+                reorderSets()
+            }
+            .onMove { from, to in
+                sets.move(fromOffsets: from, toOffset: to)
+                reorderSets()
+            }
 
             Button {
                 sets.append(duplicatingLast())
@@ -129,35 +136,42 @@ struct ExerciseEditView: View {
     // MARK: - Helpers
 
     private func expandToPerSet() {
-        sets = (0..<uniformCount).map { _ in
-            ExerciseSet(
+        sets = (0..<uniformCount).map { i in
+            ExerciseSetModel(
                 targetReps: uniformToFailure ? nil : uniformReps,
                 suggestedWeightKg: uniformHasWeight ? uniformWeight : nil,
-                restSeconds: uniformRest
+                restSeconds: uniformRest,
+                order: i
             )
         }
     }
 
-    private func buildSets() -> [ExerciseSet] {
-        if varyPerSet { return sets }
-        return (0..<uniformCount).map { _ in
-            ExerciseSet(
+    private func buildSets() -> [ExerciseSetModel] {
+        if varyPerSet {
+            return sets
+        }
+        return (0..<uniformCount).map { i in
+            ExerciseSetModel(
                 targetReps: uniformToFailure ? nil : uniformReps,
                 suggestedWeightKg: uniformHasWeight ? uniformWeight : nil,
-                restSeconds: uniformRest
+                restSeconds: uniformRest,
+                order: i
             )
         }
     }
 
-    private func duplicatingLast() -> ExerciseSet {
-        if let last = sets.last {
-            return ExerciseSet(
-                targetReps: last.targetReps,
-                suggestedWeightKg: last.suggestedWeightKg,
-                restSeconds: last.restSeconds
-            )
-        }
-        return ExerciseSet()
+    private func duplicatingLast() -> ExerciseSetModel {
+        let last = sets.last
+        return ExerciseSetModel(
+            targetReps: last?.targetReps ?? 10,
+            suggestedWeightKg: last?.suggestedWeightKg,
+            restSeconds: last?.restSeconds ?? 60,
+            order: sets.count
+        )
+    }
+
+    private func reorderSets() {
+        for (i, set) in sets.enumerated() { set.order = i }
     }
 }
 
@@ -170,7 +184,7 @@ private struct SetEditIndex: Identifiable {
 
 private struct SetRowView: View {
     let setNumber: Int
-    let set: ExerciseSet
+    let set: ExerciseSetModel
 
     var body: some View {
         HStack {
@@ -181,29 +195,22 @@ private struct SetRowView: View {
 
             VStack(alignment: .leading, spacing: 2) {
                 if let reps = set.targetReps {
-                    Text("\(reps) reps")
-                        .font(.subheadline)
+                    Text("\(reps) reps").font(.subheadline)
                 } else {
-                    Text("To failure")
-                        .font(.subheadline)
-                        .foregroundStyle(.orange)
+                    Text("To failure").font(.subheadline).foregroundStyle(.orange)
                 }
                 HStack(spacing: 6) {
                     if let kg = set.suggestedWeightKg {
                         Text("\(kg, specifier: "%.1f") kg")
-                            .font(.caption)
-                            .foregroundStyle(.secondary)
+                            .font(.caption).foregroundStyle(.secondary)
                     }
                     Text("\(set.restSeconds)s rest")
-                        .font(.caption)
-                        .foregroundStyle(.secondary)
+                        .font(.caption).foregroundStyle(.secondary)
                 }
             }
 
             Spacer()
-            Image(systemName: "chevron.right")
-                .imageScale(.small)
-                .foregroundStyle(.tertiary)
+            Image(systemName: "chevron.right").imageScale(.small).foregroundStyle(.tertiary)
         }
     }
 }

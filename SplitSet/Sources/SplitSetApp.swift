@@ -1,4 +1,5 @@
 import SwiftUI
+import SwiftData
 
 @main
 struct SplitSetApp: App {
@@ -6,5 +7,6 @@ struct SplitSetApp: App {
         WindowGroup {
             ContentView()
         }
+        .modelContainer(for: WorkoutModel.self)
     }
 }

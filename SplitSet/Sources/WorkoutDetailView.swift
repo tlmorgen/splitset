@@ -1,16 +1,15 @@
 import SwiftUI
-import SplitSetCore
 
 struct WorkoutDetailView: View {
-    let workout: Workout
+    let workout: WorkoutModel
 
     var body: some View {
         List {
-            ForEach(workout.exercises) { exercise in
+            ForEach(workout.exercises.sorted { $0.order < $1.order }) { exercise in
                 Section(exercise.name) {
-                    ForEach(Array(exercise.sets.enumerated()), id: \.element.id) { index, set in
+                    ForEach(exercise.sets.sorted { $0.order < $1.order }) { set in
                         HStack {
-                            Text("Set \(index + 1)")
+                            Text("Set \(set.order + 1)")
                                 .font(.subheadline)
                                 .foregroundStyle(.secondary)
                                 .frame(width: 44, alignment: .leading)

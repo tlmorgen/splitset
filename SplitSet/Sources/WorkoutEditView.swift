@@ -1,14 +1,14 @@
 import SwiftUI
-import SplitSetCore
+import SwiftData
 
 struct WorkoutEditView: View {
     @Environment(\.dismiss) private var dismiss
-    @State private var name = ""
-    @State private var exercises: [Exercise] = []
-    @State private var trackWeights = false
-    @State private var showingAddExercise = false
+    @Environment(\.modelContext) private var modelContext
 
-    var onSave: (Workout) -> Void
+    @State private var name = ""
+    @State private var trackWeights = false
+    @State private var exercises: [ExerciseModel] = []
+    @State private var showingAddExercise = false
 
     var body: some View {
         NavigationStack {
@@ -31,8 +31,14 @@ struct WorkoutEditView: View {
                         }
                         .padding(.vertical, 2)
                     }
-                    .onDelete { exercises.remove(atOffsets: $0) }
-                    .onMove { exercises.move(fromOffsets: $0, toOffset: $1) }
+                    .onDelete { offsets in
+                        exercises.remove(atOffsets: offsets)
+                        reorder()
+                    }
+                    .onMove { from, to in
+                        exercises.move(fromOffsets: from, toOffset: to)
+                        reorder()
+                    }
 
                     Button {
                         showingAddExercise = true
@@ -49,23 +55,36 @@ struct WorkoutEditView: View {
                 }
                 ToolbarItem(placement: .confirmationAction) {
                     Button("Save") {
-                        onSave(Workout(name: name, exercises: exercises, trackWeights: trackWeights))
-                        dismiss()
+                        save()
                     }
                     .disabled(name.isEmpty)
                 }
             }
             .sheet(isPresented: $showingAddExercise) {
                 ExerciseEditView { exercise in
+                    exercise.order = exercises.count
                     exercises.append(exercise)
                 }
             }
         }
     }
 
-    private func setsSummary(_ exercise: Exercise) -> String {
+    private func save() {
+        let workout = WorkoutModel(name: name, trackWeights: trackWeights)
+        workout.exercises = exercises
+        modelContext.insert(workout)
+        dismiss()
+    }
+
+    private func reorder() {
+        for (i, exercise) in exercises.enumerated() {
+            exercise.order = i
+        }
+    }
+
+    private func setsSummary(_ exercise: ExerciseModel) -> String {
         let count = exercise.sets.count
-        let repParts = exercise.sets.map { set in
+        let repParts = exercise.sets.sorted { $0.order < $1.order }.map { set in
             set.targetReps.map { "\($0)" } ?? "F"
         }
         let unique = Set(repParts)

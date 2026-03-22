@@ -1,9 +1,9 @@
 import SwiftUI
-import SplitSetCore
 
 struct ExerciseSetEditView: View {
     @Environment(\.dismiss) private var dismiss
-    @Binding var set: ExerciseSet
+
+    let set: ExerciseSetModel
     let setNumber: Int
 
     @State private var isToFailure: Bool
@@ -12,15 +12,14 @@ struct ExerciseSetEditView: View {
     @State private var weight: Double
     @State private var restSeconds: Int
 
-    init(set: Binding<ExerciseSet>, setNumber: Int) {
-        self._set = set
+    init(set: ExerciseSetModel, setNumber: Int) {
+        self.set = set
         self.setNumber = setNumber
-        let s = set.wrappedValue
-        self._isToFailure = State(initialValue: s.targetReps == nil)
-        self._reps = State(initialValue: s.targetReps ?? 10)
-        self._hasWeight = State(initialValue: s.suggestedWeightKg != nil)
-        self._weight = State(initialValue: s.suggestedWeightKg ?? 20.0)
-        self._restSeconds = State(initialValue: s.restSeconds)
+        self._isToFailure = State(initialValue: set.targetReps == nil)
+        self._reps = State(initialValue: set.targetReps ?? 10)
+        self._hasWeight = State(initialValue: set.suggestedWeightKg != nil)
+        self._weight = State(initialValue: set.suggestedWeightKg ?? 20.0)
+        self._restSeconds = State(initialValue: set.restSeconds)
     }
 
     var body: some View {
@@ -43,8 +42,7 @@ struct ExerciseSetEditView: View {
                                 .keyboardType(.decimalPad)
                                 .multilineTextAlignment(.trailing)
                                 .frame(width: 80)
-                            Text("kg")
-                                .foregroundStyle(.secondary)
+                            Text("kg").foregroundStyle(.secondary)
                         }
                     }
                 }
