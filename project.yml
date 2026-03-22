@@ -1,0 +1,74 @@
+name: SplitSet
+options:
+  bundleIdPrefix: com.tlmorgen
+  deploymentTarget:
+    iOS: "17.0"
+    watchOS: "10.0"
+  xcodeVersion: "16.0"
+
+packages:
+  SplitSetCore:
+    path: SplitSetCore
+
+targets:
+  SplitSet:
+    type: application
+    platform: iOS
+    deploymentTarget: "17.0"
+    sources:
+      - path: SplitSet/Sources
+    resources:
+      - path: SplitSet/Resources
+        excludes:
+          - "*.entitlements"
+    entitlements:
+      path: SplitSet/Resources/SplitSet.entitlements
+      properties:
+        com.apple.developer.healthkit: true
+        com.apple.developer.healthkit.access: []
+    dependencies:
+      - package: SplitSetCore
+      - sdk: WatchConnectivity.framework
+    info:
+      path: SplitSet/Info.plist
+      properties:
+        CFBundleDisplayName: SplitSet
+        UILaunchScreen:
+          UIColorName: ""
+        NSHealthShareUsageDescription: "SplitSet reads heart rate during workouts."
+        NSHealthUpdateUsageDescription: "SplitSet saves workout data to Health."
+    settings:
+      base:
+        PRODUCT_BUNDLE_IDENTIFIER: com.tlmorgen.splitset
+        SWIFT_VERSION: "5.9"
+
+  SplitSetWatch:
+    type: application
+    platform: watchOS
+    deploymentTarget: "10.0"
+    sources:
+      - path: SplitSetWatch/Sources
+    resources:
+      - path: SplitSetWatch/Resources
+        excludes:
+          - "*.entitlements"
+    entitlements:
+      path: SplitSetWatch/Resources/SplitSetWatch.entitlements
+      properties:
+        com.apple.developer.healthkit: true
+        com.apple.developer.healthkit.access: []
+    dependencies:
+      - package: SplitSetCore
+      - sdk: WatchConnectivity.framework
+      - sdk: HealthKit.framework
+    info:
+      path: SplitSetWatch/Info.plist
+      properties:
+        CFBundleDisplayName: SplitSet
+        WKApplication: true
+        NSHealthShareUsageDescription: "SplitSet reads heart rate during workouts."
+        NSHealthUpdateUsageDescription: "SplitSet saves workout data to Health."
+    settings:
+      base:
+        PRODUCT_BUNDLE_IDENTIFIER: com.tlmorgen.splitset.watchkitapp
+        SWIFT_VERSION: "5.9"
