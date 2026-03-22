@@ -3,6 +3,10 @@ import SwiftData
 
 @main
 struct SplitSetApp: App {
+    init() {
+        PhoneConnectivityManager.shared.activate()
+    }
+
     var body: some Scene {
         WindowGroup {
             ContentView()

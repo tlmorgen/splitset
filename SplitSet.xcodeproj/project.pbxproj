@@ -18,6 +18,7 @@
 		69439DD46A97D733109ABC29 /* WatchConnectivity.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 6EC9A9CA8272FA635AAF4728 /* WatchConnectivity.framework */; };
 		70906D6D0693B0A416BBCAB1 /* ExerciseModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = BFFE42AF0E3761B5EE47DAB3 /* ExerciseModel.swift */; };
 		726E1FF6C7674FC79CD18728 /* RestStepView.swift in Sources */ = {isa = PBXBuildFile; fileRef = EE1E2582CDC5AD51079283F1 /* RestStepView.swift */; };
+		772E835256709777483199E9 /* WatchConnectivityManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = F427988A76D984A1B88D51EC /* WatchConnectivityManager.swift */; };
 		9237FD889A6162B4127BF4D4 /* WorkoutModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 761DE1D42EDE777650E362B3 /* WorkoutModel.swift */; };
 		97D4D42F0645CD23E403B3BD /* ExerciseSetEditView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 800F789A97786903C35D9974 /* ExerciseSetEditView.swift */; };
 		9ADAD09139AECB37406E4FAB /* WorkoutEditView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4B2E290D985E191C044229D3 /* WorkoutEditView.swift */; };
@@ -25,6 +26,7 @@
 		A3B0E2AE8C9711BB187B478E /* SplitSetApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0906D9CE5AF29CE5E454A444 /* SplitSetApp.swift */; };
 		A6A573D5C1BF23A8BE557D4C /* ContentView.swift in Sources */ = {isa = PBXBuildFile; fileRef = CBFCC0C65D9CC3E389495993 /* ContentView.swift */; };
 		A853AB0F7395FD221F3ACB27 /* ContentView.swift in Sources */ = {isa = PBXBuildFile; fileRef = F9D1DBD10DDE4E27C02DC641 /* ContentView.swift */; };
+		C3E4A20A6E876A46814F2393 /* PhoneConnectivityManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 09F851C62FA447998AD22F96 /* PhoneConnectivityManager.swift */; };
 		CC345DC97A5055A22E2F8E9B /* WeightPickerView.swift in Sources */ = {isa = PBXBuildFile; fileRef = C8C4F68A50CA1F8E686FBEA0 /* WeightPickerView.swift */; };
 		D8512D2E994CEB3557957EAC /* SplitSetWatchApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4244D368CF6271C246682DCB /* SplitSetWatchApp.swift */; };
 		EB8DFAB172F4903C07C40CB5 /* WorkoutDetailView.swift in Sources */ = {isa = PBXBuildFile; fileRef = EAA996EA1A38E1C469E6243A /* WorkoutDetailView.swift */; };
@@ -33,6 +35,7 @@
 
 /* Begin PBXFileReference section */
 		0906D9CE5AF29CE5E454A444 /* SplitSetApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SplitSetApp.swift; sourceTree = "<group>"; };
+		09F851C62FA447998AD22F96 /* PhoneConnectivityManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PhoneConnectivityManager.swift; sourceTree = "<group>"; };
 		28B136F7F55032C1DF7F9F5A /* ExerciseEditView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ExerciseEditView.swift; sourceTree = "<group>"; };
 		2EDE6C1E9DD6639776563D5D /* HealthKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = HealthKit.framework; path = System/Library/Frameworks/HealthKit.framework; sourceTree = SDKROOT; };
 		3106450A21A58BF7A4680129 /* SplitSetWatch.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = SplitSetWatch.app; sourceTree = BUILT_PRODUCTS_DIR; };
@@ -53,6 +56,7 @@
 		EAA996EA1A38E1C469E6243A /* WorkoutDetailView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WorkoutDetailView.swift; sourceTree = "<group>"; };
 		EE1E2582CDC5AD51079283F1 /* RestStepView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RestStepView.swift; sourceTree = "<group>"; };
 		F3F4E30F41BC81FD265DFE5D /* ExerciseSetModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ExerciseSetModel.swift; sourceTree = "<group>"; };
+		F427988A76D984A1B88D51EC /* WatchConnectivityManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WatchConnectivityManager.swift; sourceTree = "<group>"; };
 		F9D1DBD10DDE4E27C02DC641 /* ContentView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ContentView.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
@@ -113,6 +117,7 @@
 				3C2984A2D70E2B85905CF61B /* LiftStepView.swift */,
 				EE1E2582CDC5AD51079283F1 /* RestStepView.swift */,
 				4244D368CF6271C246682DCB /* SplitSetWatchApp.swift */,
+				F427988A76D984A1B88D51EC /* WatchConnectivityManager.swift */,
 				C8C4F68A50CA1F8E686FBEA0 /* WeightPickerView.swift */,
 				A7EC45DA8FFFC54D9DF9899B /* WorkoutPlayerView.swift */,
 			);
@@ -139,6 +144,7 @@
 				BFFE42AF0E3761B5EE47DAB3 /* ExerciseModel.swift */,
 				800F789A97786903C35D9974 /* ExerciseSetEditView.swift */,
 				F3F4E30F41BC81FD265DFE5D /* ExerciseSetModel.swift */,
+				09F851C62FA447998AD22F96 /* PhoneConnectivityManager.swift */,
 				0906D9CE5AF29CE5E454A444 /* SplitSetApp.swift */,
 				EAA996EA1A38E1C469E6243A /* WorkoutDetailView.swift */,
 				4B2E290D985E191C044229D3 /* WorkoutEditView.swift */,
@@ -234,6 +240,7 @@
 				70906D6D0693B0A416BBCAB1 /* ExerciseModel.swift in Sources */,
 				97D4D42F0645CD23E403B3BD /* ExerciseSetEditView.swift in Sources */,
 				22DE42FF65F84DB4E75707A1 /* ExerciseSetModel.swift in Sources */,
+				C3E4A20A6E876A46814F2393 /* PhoneConnectivityManager.swift in Sources */,
 				A3B0E2AE8C9711BB187B478E /* SplitSetApp.swift in Sources */,
 				EB8DFAB172F4903C07C40CB5 /* WorkoutDetailView.swift in Sources */,
 				9ADAD09139AECB37406E4FAB /* WorkoutEditView.swift in Sources */,
@@ -251,6 +258,7 @@
 				FEB6CDE1911498DB671371E7 /* LiftStepView.swift in Sources */,
 				726E1FF6C7674FC79CD18728 /* RestStepView.swift in Sources */,
 				D8512D2E994CEB3557957EAC /* SplitSetWatchApp.swift in Sources */,
+				772E835256709777483199E9 /* WatchConnectivityManager.swift in Sources */,
 				CC345DC97A5055A22E2F8E9B /* WeightPickerView.swift in Sources */,
 				25633C78430847EEED88734B /* WorkoutPlayerView.swift in Sources */,
 			);

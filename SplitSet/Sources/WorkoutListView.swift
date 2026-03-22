@@ -39,6 +39,12 @@ struct WorkoutListView: View {
             .sheet(isPresented: $showingNewWorkout) {
                 WorkoutEditView()
             }
+            .onAppear {
+                PhoneConnectivityManager.shared.syncWorkouts(workouts)
+            }
+            .onChange(of: workouts) {
+                PhoneConnectivityManager.shared.syncWorkouts(workouts)
+            }
         }
     }
 
