@@ -1,37 +1,64 @@
 # SplitSet
 
-A watchOS workout companion app for guided resistance training. Build your routines on iPhone, then leave your phone in your bag — SplitSet walks you through every set, rest, and rep directly from your wrist.
+Build your workout on iPhone. Execute it on your wrist.
+
+SplitSet is a watchOS-first resistance training companion. Design your routines on iPhone with exercises, sets, reps, and rest periods — then leave your phone in your bag. SplitSet walks you through every set, rest, and rep directly from your Apple Watch, with live heart rate, haptic cues, and optional weight logging via the Digital Crown.
+
+## Why SplitSet?
+
+Most workout apps fight for screen time. SplitSet takes the opposite approach: do the thinking on your phone, then forget about it. At the gym, your watch is your coach — it tells you what to lift, when to rest, and keeps you moving. No scrolling, no searching, no phone in your pocket.
 
 ## Features
 
-- **Watch-first** — the full workout experience runs on Apple Watch with no phone required at the gym
-- **Step-by-step guidance** — the watch walks you through each set in order, with rest countdowns between them
+- **Watch-first workout player** — the full workout experience runs on Apple Watch with no phone required at the gym
+- **Step-by-step guidance** — the watch walks you through each set in order, with rest countdowns and auto-advance between exercises
 - **Flexible set configuration** — uniform sets for simple routines, or configure each set individually for progressive overload
-- **To-failure sets** — mark any set as AMRAP; the watch shows "To failure" instead of a rep target
-- **Live heart rate** — heart rate is visible throughout the entire workout via an active `HKWorkoutSession`
+- **To-failure / AMRAP sets** — mark any set as to-failure; the watch shows "To failure" instead of a rep target
+- **Timed sets** — duration-based sets with auto-countdown for cardio finishers, planks, or any timed work
+- **Live heart rate** — real-time heart rate monitoring throughout the workout via an active HealthKit workout session
 - **Weight tracking** — optionally log the weight used per set using the Digital Crown; pre-fills from your last session
-- **Haptic feedback** — haptics signal set completion, rest start/end, and workout completion
+- **Haptic feedback** — haptics signal set completion, rest start/end, and workout completion so you don't have to watch the screen
+- **Automatic sync** — workouts sync from iPhone to Apple Watch via WatchConnectivity whenever you make changes
+
+## How It Works
+
+```
+ iPhone                          Apple Watch
+┌──────────────────┐            ┌──────────────────┐
+│  Build workouts  │   sync     │  Execute workout  │
+│  Add exercises   │ ────────── │  Step-by-step     │
+│  Configure sets  │            │  HR + haptics     │
+│  Set rest times  │            │  Log weights      │
+└──────────────────┘            └──────────────────┘
+```
+
+1. **Build** — Create workouts on iPhone. Add exercises, set rep targets or durations, suggest weights, and configure rest periods.
+2. **Sync** — Workouts automatically sync to your Apple Watch.
+3. **Lift** — Start a workout on your watch. Follow the guided steps — lift, rest, repeat. Haptics keep you on track without looking at the screen.
+4. **Log** — Optionally log weights per set with the Digital Crown. Your last weight pre-fills for next time.
 
 ## Project Structure
 
 ```
 SplitSet/
-├── SplitSetCore/           Shared Swift package — models used by both targets
+├── SplitSetCore/           Shared Swift package — domain models
 │   ├── Workout             Name, exercise list, weight tracking toggle
-│   ├── Exercise            Name, ordered list of ExerciseSets, notes
-│   ├── ExerciseSet         Per-set rep target, suggested weight, rest duration
-│   ├── WorkoutStep         Runtime enum: .lift or .rest (generated from exercises)
+│   ├── Exercise            Name, ordered sets, notes, rest duration
+│   ├── ExerciseSet         Rep target or duration, suggested weight
+│   ├── WorkoutStep         Runtime enum: .lift or .rest
 │   ├── WorkoutSession      Active session state and set logs
-│   └── SetLog              Completed set record — actual reps and weight
+│   └── SetLog              Completed set — actual reps and weight
 ├── SplitSet/               iOS app — workout builder
 │   ├── WorkoutListView     Browse, create, and delete workouts
 │   ├── WorkoutDetailView   Per-exercise set breakdown
 │   ├── WorkoutEditView     Create/edit a workout and its exercises
-│   ├── ExerciseEditView    Add exercises with uniform or per-set configuration
-│   └── ExerciseSetEditView Edit an individual set's reps, weight, and rest
+│   ├── ExerciseEditView    Uniform or per-set configuration
+│   ├── HelpView            Getting started guide and tips
+│   └── Connectivity        WatchConnectivity sync to watch
 └── SplitSetWatch/          watchOS app — workout player
     ├── WorkoutPlayerView   Step-by-step player with HR header
-    ├── LiftStepView        Active set screen — exercise, set number, rep target
+    ├── LiftStepView        Active set — exercise, reps, weight
+    ├── TimedSetView        Timed set with countdown
     ├── RestStepView        Rest countdown with next-up preview
     ├── WeightPickerView    Digital Crown weight logger
     └── HealthKitManager    HKWorkoutSession + live heart rate
@@ -58,7 +85,7 @@ Select the **SplitSet** or **SplitSetWatch** scheme and run on a simulator or de
 
 ## Roadmap
 
-- [ ] WatchConnectivity — sync workouts from phone to watch
-- [ ] SwiftData persistence — save workouts and history across launches
 - [ ] Workout history — review past sessions and logged weights
-- [ ] WatchConnectivity weight sync — push completed set logs back to the phone
+- [ ] Weight sync — push completed set logs back to the phone
+- [ ] Workout templates — built-in starter routines
+- [ ] Rest timer customization on watch — adjust rest on the fly

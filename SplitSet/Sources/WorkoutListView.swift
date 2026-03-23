@@ -6,6 +6,7 @@ struct WorkoutListView: View {
     @Query(sort: \WorkoutModel.createdAt) var workouts: [WorkoutModel]
     @Environment(\.modelContext) var modelContext
     @State private var showingNewWorkout = false
+    @State private var showingHelp = false
 
     var body: some View {
         NavigationStack {
@@ -21,6 +22,13 @@ struct WorkoutListView: View {
                 WorkoutDetailView(workout: workout)
             }
             .toolbar {
+                ToolbarItem(placement: .cancellationAction) {
+                    Button {
+                        showingHelp = true
+                    } label: {
+                        Image(systemName: "questionmark.circle")
+                    }
+                }
                 ToolbarItem(placement: .primaryAction) {
                     Button {
                         showingNewWorkout = true
@@ -32,6 +40,9 @@ struct WorkoutListView: View {
             }
             .sheet(isPresented: $showingNewWorkout) {
                 WorkoutEditView()
+            }
+            .sheet(isPresented: $showingHelp) {
+                HelpView()
             }
             .onAppear {
                 #if DEBUG
