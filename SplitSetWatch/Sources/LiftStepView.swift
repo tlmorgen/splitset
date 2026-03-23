@@ -33,7 +33,7 @@ struct LiftStepView: View {
             }
 
             if let kg = exerciseSet.suggestedWeightKg {
-                Text("\(kg, specifier: "%.1f") kg suggested")
+                Text("\(WeightUnit.current.format(kg)) suggested")
                     .font(.caption)
                     .foregroundStyle(.secondary)
             }

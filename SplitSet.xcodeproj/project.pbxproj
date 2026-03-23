@@ -32,6 +32,7 @@
 		CC345DC97A5055A22E2F8E9B /* WeightPickerView.swift in Sources */ = {isa = PBXBuildFile; fileRef = C8C4F68A50CA1F8E686FBEA0 /* WeightPickerView.swift */; };
 		D8512D2E994CEB3557957EAC /* SplitSetWatchApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4244D368CF6271C246682DCB /* SplitSetWatchApp.swift */; };
 		EB8DFAB172F4903C07C40CB5 /* WorkoutDetailView.swift in Sources */ = {isa = PBXBuildFile; fileRef = EAA996EA1A38E1C469E6243A /* WorkoutDetailView.swift */; };
+		F9CCD68BA74B1CC422DC0A83 /* WorkoutTransferable.swift in Sources */ = {isa = PBXBuildFile; fileRef = EA8ED7339E888B0DAF2FB520 /* WorkoutTransferable.swift */; };
 		F9DCB27F2A5D15F2D64A45F0 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 95B3A4372F733B9C28BFCA5A /* Assets.xcassets */; };
 		FE1AFE91A019DCC5CED95ED7 /* TimedSetView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1AC7F0D846EE1AAFB389E523 /* TimedSetView.swift */; };
 		FEB6CDE1911498DB671371E7 /* LiftStepView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3C2984A2D70E2B85905CF61B /* LiftStepView.swift */; };
@@ -47,7 +48,7 @@
 		3C2984A2D70E2B85905CF61B /* LiftStepView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LiftStepView.swift; sourceTree = "<group>"; };
 		4244D368CF6271C246682DCB /* SplitSetWatchApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SplitSetWatchApp.swift; sourceTree = "<group>"; };
 		4B2E290D985E191C044229D3 /* WorkoutEditView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WorkoutEditView.swift; sourceTree = "<group>"; };
-		5BCC19B8549699239EC6B348 /* SplitSetCore */ = {isa = PBXFileReference; lastKnownFileType = folder; path = SplitSetCore; sourceTree = SOURCE_ROOT; };
+		5BCC19B8549699239EC6B348 /* SplitSetCore */ = {isa = PBXFileReference; lastKnownFileType = folder; name = SplitSetCore; path = SplitSetCore; sourceTree = SOURCE_ROOT; };
 		6EC9A9CA8272FA635AAF4728 /* WatchConnectivity.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = WatchConnectivity.framework; path = System/Library/Frameworks/WatchConnectivity.framework; sourceTree = SDKROOT; };
 		761DE1D42EDE777650E362B3 /* WorkoutModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WorkoutModel.swift; sourceTree = "<group>"; };
 		800F789A97786903C35D9974 /* ExerciseSetEditView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ExerciseSetEditView.swift; sourceTree = "<group>"; };
@@ -58,9 +59,10 @@
 		BFFE42AF0E3761B5EE47DAB3 /* ExerciseModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ExerciseModel.swift; sourceTree = "<group>"; };
 		C8C4F68A50CA1F8E686FBEA0 /* WeightPickerView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WeightPickerView.swift; sourceTree = "<group>"; };
 		CBFCC0C65D9CC3E389495993 /* ContentView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ContentView.swift; sourceTree = "<group>"; };
-		DC7000F7EEBE037D122C4A6B /* SplitSet.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = SplitSet.app; sourceTree = BUILT_PRODUCTS_DIR; };
+		DC7000F7EEBE037D122C4A6B /* SplitSet.app */ = {isa = PBXFileReference; includeInIndex = 0; lastKnownFileType = wrapper.application; path = SplitSet.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		E32FC19C9582464665C7D727 /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
 		E74D23A6B478E6BD3C0D090B /* HelpView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HelpView.swift; sourceTree = "<group>"; };
+		EA8ED7339E888B0DAF2FB520 /* WorkoutTransferable.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WorkoutTransferable.swift; sourceTree = "<group>"; };
 		EAA996EA1A38E1C469E6243A /* WorkoutDetailView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WorkoutDetailView.swift; sourceTree = "<group>"; };
 		EE1E2582CDC5AD51079283F1 /* RestStepView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RestStepView.swift; sourceTree = "<group>"; };
 		F3F4E30F41BC81FD265DFE5D /* ExerciseSetModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ExerciseSetModel.swift; sourceTree = "<group>"; };
@@ -162,6 +164,7 @@
 				4B2E290D985E191C044229D3 /* WorkoutEditView.swift */,
 				A804500CAB934D66DF62ED76 /* WorkoutListView.swift */,
 				761DE1D42EDE777650E362B3 /* WorkoutModel.swift */,
+				EA8ED7339E888B0DAF2FB520 /* WorkoutTransferable.swift */,
 			);
 			name = Sources;
 			path = SplitSet/Sources;
@@ -220,9 +223,11 @@
 				LastUpgradeCheck = 1600;
 				TargetAttributes = {
 					30183EA5E8F422BD6C61DE46 = {
+						DevelopmentTeam = 8XN77HKABA;
 						ProvisioningStyle = Automatic;
 					};
 					89ACD9646BB2EED58E093387 = {
+						DevelopmentTeam = 8XN77HKABA;
 						ProvisioningStyle = Automatic;
 					};
 				};
@@ -286,6 +291,7 @@
 				9ADAD09139AECB37406E4FAB /* WorkoutEditView.swift in Sources */,
 				5DE1B80446141C873B37438F /* WorkoutListView.swift in Sources */,
 				9237FD889A6162B4127BF4D4 /* WorkoutModel.swift in Sources */,
+				F9CCD68BA74B1CC422DC0A83 /* WorkoutTransferable.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

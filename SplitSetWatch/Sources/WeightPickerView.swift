@@ -1,11 +1,19 @@
 import SwiftUI
+import SplitSetCore
 
 struct WeightPickerView: View {
-    @State private var weight: Double
+    @State private var displayWeight: Double
     let onConfirm: (Double?) -> Void
 
+    private var unit: WeightUnit { .current }
+
     init(lastWeight: Double?, onConfirm: @escaping (Double?) -> Void) {
-        self._weight = State(initialValue: lastWeight ?? 20.0)
+        let u = WeightUnit.current
+        if let kg = lastWeight {
+            self._displayWeight = State(initialValue: u.fromKg(kg).rounded())
+        } else {
+            self._displayWeight = State(initialValue: u.defaultWeight)
+        }
         self.onConfirm = onConfirm
     }
 
@@ -14,14 +22,14 @@ struct WeightPickerView: View {
             Text("Log Weight")
                 .font(.headline)
 
-            Text(String(format: "%.1f kg", weight))
+            Text(String(format: "%.0f %@", displayWeight, unit.label))
                 .font(.title2.bold().monospacedDigit())
                 .focusable()
                 .digitalCrownRotation(
-                    $weight,
+                    $displayWeight,
                     from: 0,
-                    through: 500,
-                    by: 0.5,
+                    through: unit.maxWeight,
+                    by: unit.step,
                     sensitivity: .medium,
                     isContinuous: false,
                     isHapticFeedbackEnabled: true
@@ -32,7 +40,7 @@ struct WeightPickerView: View {
                     .buttonStyle(.bordered)
                     .tint(.secondary)
 
-                Button("Log") { onConfirm(weight) }
+                Button("Log") { onConfirm(unit.toKg(displayWeight)) }
                     .buttonStyle(.borderedProminent)
                     .tint(.blue)
             }

@@ -28,15 +28,32 @@ targets:
       path: SplitSet/Info.plist
       properties:
         CFBundleDisplayName: SplitSet
+        UIRequiresFullScreen: true
+        UISupportedInterfaceOrientations:
+          - UIInterfaceOrientationPortrait
         UILaunchScreen:
           UIColorName: ""
         NSHealthShareUsageDescription: "SplitSet reads heart rate during workouts."
         NSHealthUpdateUsageDescription: "SplitSet saves workout data to Health."
+        UTExportedTypeDeclarations:
+          - UTTypeIdentifier: com.tlmorgen.splitset.workout
+            UTTypeDescription: SplitSet Workout
+            UTTypeConformsTo:
+              - public.json
+            UTTypeTagSpecification:
+              public.filename-extension:
+                - splitset
+        CFBundleDocumentTypes:
+          - CFBundleTypeName: SplitSet Workout
+            LSHandlerRank: Owner
+            LSItemContentTypes:
+              - com.tlmorgen.splitset.workout
     settings:
       base:
         PRODUCT_BUNDLE_IDENTIFIER: com.tlmorgen.splitset
         SWIFT_VERSION: "5.9"
         CODE_SIGN_STYLE: Automatic
+        DEVELOPMENT_TEAM: 8XN77HKABA
 
   SplitSetWatch:
     type: application
@@ -65,3 +82,4 @@ targets:
         PRODUCT_BUNDLE_IDENTIFIER: com.tlmorgen.splitset.watchkitapp
         SWIFT_VERSION: "5.9"
         CODE_SIGN_STYLE: Automatic
+        DEVELOPMENT_TEAM: 8XN77HKABA

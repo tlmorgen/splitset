@@ -1,7 +1,9 @@
 import SwiftUI
+import SplitSetCore
 
 struct ExerciseEditView: View {
     @Environment(\.dismiss) private var dismiss
+    private var unit: WeightUnit { .current }
 
     @State private var name = ""
     @State private var notes = ""
@@ -17,6 +19,8 @@ struct ExerciseEditView: View {
     @State private var uniformDurationSeconds = 30
     @State private var uniformHasWeight = false
     @State private var uniformWeight = 20.0
+    @State private var uniformWeightEdited = false
+    private var originalUniformWeightKg: Double?
 
     // Per-set mode
     @State private var sets: [ExerciseSetModel] = []
@@ -29,12 +33,16 @@ struct ExerciseEditView: View {
     init(onSave: @escaping (ExerciseModel) -> Void) {
         editingExercise = nil
         self.onSave = onSave
+        self.originalUniformWeightKg = nil
+        let u = WeightUnit.current
+        _uniformWeight = State(initialValue: u.defaultWeight)
     }
 
     // Edit mode — preserves uniform vs per-set
     init(editing exercise: ExerciseModel) {
         editingExercise = exercise
         self.onSave = { _ in }
+        self.originalUniformWeightKg = exercise.isUniform ? exercise.sets.first?.suggestedWeightKg : nil
         _name = State(initialValue: exercise.name)
         _notes = State(initialValue: exercise.notes ?? "")
         _restSeconds = State(initialValue: exercise.restSeconds)
@@ -50,8 +58,9 @@ struct ExerciseEditView: View {
             let dur = first.durationSeconds ?? 30
             _uniformDurationMinutes = State(initialValue: dur / 60)
             _uniformDurationSeconds = State(initialValue: dur % 60)
+            let u = WeightUnit.current
             _uniformHasWeight = State(initialValue: first.suggestedWeightKg != nil)
-            _uniformWeight = State(initialValue: first.suggestedWeightKg ?? 20.0)
+            _uniformWeight = State(initialValue: u.fromKg(first.suggestedWeightKg ?? u.defaultWeight))
         }
     }
 
@@ -150,11 +159,12 @@ struct ExerciseEditView: View {
                 HStack {
                     Text("Weight")
                     Spacer()
-                    TextField("kg", value: $uniformWeight, format: .number)
+                    TextField(unit.label, value: $uniformWeight, format: .number)
                         .keyboardType(.decimalPad)
                         .multilineTextAlignment(.trailing)
                         .frame(width: 80)
-                    Text("kg").foregroundStyle(.secondary)
+                        .onChange(of: uniformWeight) { uniformWeightEdited = true }
+                    Text(unit.label).foregroundStyle(.secondary)
                 }
             }
         }
@@ -217,13 +227,21 @@ struct ExerciseEditView: View {
 
     // MARK: - Helpers
 
+    private var uniformWeightKg: Double? {
+        guard uniformHasWeight else { return nil }
+        if uniformWeightEdited {
+            return unit.toKg(uniformWeight)
+        }
+        return originalUniformWeightKg ?? unit.toKg(uniformWeight)
+    }
+
     private func expandToPerSet() {
         let duration = uniformIsTimed ? uniformDurationMinutes * 60 + uniformDurationSeconds : nil
         sets = (0..<uniformCount).map { i in
             ExerciseSetModel(
                 targetReps: uniformIsTimed ? nil : (uniformToFailure ? nil : uniformReps),
                 durationSeconds: duration,
-                suggestedWeightKg: uniformHasWeight ? uniformWeight : nil,
+                suggestedWeightKg: uniformWeightKg,
                 order: i
             )
         }
@@ -235,7 +253,7 @@ struct ExerciseEditView: View {
             ExerciseSetModel(
                 targetReps: uniformIsTimed ? nil : (uniformToFailure ? nil : uniformReps),
                 durationSeconds: duration,
-                suggestedWeightKg: uniformHasWeight ? uniformWeight : nil,
+                suggestedWeightKg: uniformWeightKg,
                 order: i
             )
         }
@@ -265,6 +283,7 @@ private struct SetEditIndex: Identifiable {
 }
 
 private struct SetRowView: View {
+    private var unit: WeightUnit { .current }
     let setNumber: Int
     let set: ExerciseSetModel
 
@@ -285,7 +304,7 @@ private struct SetRowView: View {
                     Text("To failure").font(.subheadline).foregroundStyle(.orange)
                 }
                 if let kg = set.suggestedWeightKg {
-                    Text("\(kg, specifier: "%.1f") kg")
+                    Text(unit.format(kg))
                         .font(.caption).foregroundStyle(.secondary)
                 }
             }

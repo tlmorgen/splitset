@@ -7,6 +7,8 @@ struct WorkoutListView: View {
     @Environment(\.modelContext) var modelContext
     @State private var showingNewWorkout = false
     @State private var showingHelp = false
+    @State private var importedWorkoutName: String?
+    @State private var importError: String?
 
     var body: some View {
         NavigationStack {
@@ -52,6 +54,25 @@ struct WorkoutListView: View {
             }
             .onChange(of: workouts) {
                 PhoneConnectivityManager.shared.syncWorkouts(workouts)
+            }
+            .onOpenURL { url in
+                importWorkout(from: url)
+            }
+            .alert("Workout Imported", isPresented: Binding(
+                get: { importedWorkoutName != nil },
+                set: { if !$0 { importedWorkoutName = nil } }
+            )) {
+                Button("OK", role: .cancel) { }
+            } message: {
+                Text("\"\(importedWorkoutName ?? "")\" has been added to your workouts.")
+            }
+            .alert("Import Failed", isPresented: Binding(
+                get: { importError != nil },
+                set: { if !$0 { importError = nil } }
+            )) {
+                Button("OK", role: .cancel) { }
+            } message: {
+                Text(importError ?? "The file could not be read.")
             }
         }
     }
@@ -110,6 +131,40 @@ struct WorkoutListView: View {
                 }
             }
             .onDelete(perform: deleteWorkouts)
+        }
+    }
+
+    private func importWorkout(from url: URL) {
+        do {
+            let accessing = url.startAccessingSecurityScopedResource()
+            defer { if accessing { url.stopAccessingSecurityScopedResource() } }
+
+            let data = try Data(contentsOf: url)
+            let imported = try JSONDecoder().decode(Workout.self, from: data)
+
+            let workout = WorkoutModel(name: imported.name, trackWeights: imported.trackWeights)
+            for (i, ex) in imported.exercises.enumerated() {
+                let exercise = ExerciseModel(
+                    name: ex.name,
+                    notes: ex.notes,
+                    order: i,
+                    restSeconds: ex.restSeconds,
+                    isUniform: true
+                )
+                for (j, s) in ex.sets.enumerated() {
+                    exercise.sets.append(ExerciseSetModel(
+                        targetReps: s.targetReps,
+                        durationSeconds: s.durationSeconds,
+                        suggestedWeightKg: s.suggestedWeightKg,
+                        order: j
+                    ))
+                }
+                workout.exercises.append(exercise)
+            }
+            modelContext.insert(workout)
+            importedWorkoutName = imported.name
+        } catch {
+            importError = error.localizedDescription
         }
     }
 

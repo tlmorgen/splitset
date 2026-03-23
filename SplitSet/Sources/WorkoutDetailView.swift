@@ -1,5 +1,6 @@
 import SwiftUI
 import SwiftData
+import SplitSetCore
 
 struct WorkoutDetailView: View {
     let workout: WorkoutModel
@@ -56,6 +57,12 @@ struct WorkoutDetailView: View {
         .navigationTitle(workout.name)
         .navigationBarTitleDisplayMode(.large)
         .toolbar {
+            ToolbarItem(placement: .topBarLeading) {
+                ShareLink(
+                    item: WorkoutTransferItem(workout: workout.toWorkout()),
+                    preview: SharePreview(workout.name, image: Image("ShareIcon"))
+                )
+            }
             ToolbarItem(placement: .primaryAction) {
                 Button("Edit") { showingEdit = true }
             }
@@ -81,6 +88,7 @@ struct WorkoutDetailView: View {
 // MARK: - Set Row
 
 private struct SetRowView: View {
+    private var unit: WeightUnit { .current }
     let setNumber: Int
     let set: ExerciseSetModel
 
@@ -114,7 +122,7 @@ private struct SetRowView: View {
             Spacer()
 
             if let kg = set.suggestedWeightKg {
-                Label("\(kg, specifier: "%.1f") kg", systemImage: "scalemass.fill")
+                Label(unit.format(kg), systemImage: "scalemass.fill")
                     .font(.caption)
                     .foregroundStyle(.blue.opacity(0.8))
                     .padding(.horizontal, 8)
