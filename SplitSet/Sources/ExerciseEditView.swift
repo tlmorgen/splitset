@@ -196,6 +196,7 @@ struct ExerciseEditView: View {
         let last = sets.last
         return ExerciseSetModel(
             targetReps: last?.targetReps ?? 10,
+            durationSeconds: last?.durationSeconds,
             suggestedWeightKg: last?.suggestedWeightKg,
             restSeconds: last?.restSeconds ?? 60,
             order: sets.count
@@ -226,7 +227,10 @@ private struct SetRowView: View {
                 .frame(width: 44, alignment: .leading)
 
             VStack(alignment: .leading, spacing: 2) {
-                if let reps = set.targetReps {
+                if set.isTimed, let dur = set.durationSeconds {
+                    Label(dur >= 60 ? "\(dur/60)m \(dur%60)s" : "\(dur)s", systemImage: "timer")
+                        .font(.subheadline).foregroundStyle(.purple)
+                } else if let reps = set.targetReps {
                     Text("\(reps) reps").font(.subheadline)
                 } else {
                     Text("To failure").font(.subheadline).foregroundStyle(.orange)

@@ -10,10 +10,12 @@ struct WorkoutPlayerView: View {
 
     @State private var currentStepIndex = 0
     @State private var restEndDate: Date = .now
+    @State private var restAutoAdvanced = false
+    @State private var timedEndDate: Date = .now
+    @State private var timedAutoAdvanced = false
     @State private var setLogs: [SetLog] = []
     @State private var pendingLift: (exercise: Exercise, exerciseSet: ExerciseSet, setNumber: Int)?
     @State private var lastWeights: [UUID: Double] = [:]
-    @State private var restAutoAdvanced = false
 
     init(workout: Workout, healthKit: HealthKitManager) {
         self.workout = workout
@@ -85,13 +87,33 @@ struct WorkoutPlayerView: View {
         } else if let step = currentStep {
             switch step {
             case .lift(let exercise, let exerciseSet, let setNumber):
-                LiftStepView(exercise: exercise, exerciseSet: exerciseSet, setNumber: setNumber) {
-                    WKInterfaceDevice.current().play(.stop)
-                    if workout.trackWeights {
-                        pendingLift = (exercise, exerciseSet, setNumber)
-                    } else {
-                        logSet(exercise: exercise, exerciseSet: exerciseSet, setNumber: setNumber, weight: nil)
-                        advance()
+                if exerciseSet.isTimed, let duration = exerciseSet.durationSeconds {
+                    TimedSetView(
+                        exercise: exercise,
+                        exerciseSet: exerciseSet,
+                        setNumber: setNumber,
+                        endDate: timedEndDate
+                    ) {
+                        completeLift(exercise: exercise, exerciseSet: exerciseSet, setNumber: setNumber)
+                    }
+                    .onAppear {
+                        timedEndDate = Date().addingTimeInterval(Double(duration))
+                        timedAutoAdvanced = false
+                        WKInterfaceDevice.current().play(.start)
+                    }
+                    .onChange(of: timedAutoAdvanced) { _, fired in
+                        if fired { completeLift(exercise: exercise, exerciseSet: exerciseSet, setNumber: setNumber) }
+                    }
+                    .task(id: currentStepIndex) {
+                        try? await Task.sleep(for: .seconds(duration))
+                        if !timedAutoAdvanced {
+                            WKInterfaceDevice.current().play(.stop)
+                            timedAutoAdvanced = true
+                        }
+                    }
+                } else {
+                    LiftStepView(exercise: exercise, exerciseSet: exerciseSet, setNumber: setNumber) {
+                        completeLift(exercise: exercise, exerciseSet: exerciseSet, setNumber: setNumber)
                     }
                 }
 
@@ -144,6 +166,16 @@ struct WorkoutPlayerView: View {
         }
         if isCompleted {
             WKInterfaceDevice.current().play(.success)
+        }
+    }
+
+    private func completeLift(exercise: Exercise, exerciseSet: ExerciseSet, setNumber: Int) {
+        WKInterfaceDevice.current().play(.stop)
+        if workout.trackWeights && !exerciseSet.isTimed {
+            pendingLift = (exercise, exerciseSet, setNumber)
+        } else {
+            logSet(exercise: exercise, exerciseSet: exerciseSet, setNumber: setNumber, weight: nil)
+            advance()
         }
     }
 

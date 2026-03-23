@@ -1,8 +1,12 @@
 import SwiftUI
+import SwiftData
 
 struct WorkoutDetailView: View {
     let workout: WorkoutModel
+    @Environment(\.modelContext) private var modelContext
+    @Environment(\.dismiss) private var dismiss
     @State private var showingEdit = false
+    @State private var showingDeleteConfirmation = false
 
     var body: some View {
         List {
@@ -10,6 +14,10 @@ struct WorkoutDetailView: View {
                 Section {
                     ForEach(exercise.sets.sorted { $0.order < $1.order }) { set in
                         SetRowView(setNumber: set.order + 1, set: set)
+                    }
+                    .onDelete { offsets in
+                        let sorted = exercise.sets.sorted { $0.order < $1.order }
+                        offsets.map { sorted[$0] }.forEach { modelContext.delete($0) }
                     }
                     if let notes = exercise.notes {
                         Label(notes, systemImage: "note.text")
@@ -30,6 +38,12 @@ struct WorkoutDetailView: View {
                     }
                 }
             }
+
+            Section {
+                Button("Delete Workout", role: .destructive) {
+                    showingDeleteConfirmation = true
+                }
+            }
         }
         .navigationTitle(workout.name)
         .navigationBarTitleDisplayMode(.large)
@@ -40,6 +54,18 @@ struct WorkoutDetailView: View {
         }
         .sheet(isPresented: $showingEdit) {
             WorkoutEditView(editing: workout)
+        }
+        .confirmationDialog(
+            "Delete \"\(workout.name)\"?",
+            isPresented: $showingDeleteConfirmation,
+            titleVisibility: .visible
+        ) {
+            Button("Delete Workout", role: .destructive) {
+                modelContext.delete(workout)
+                dismiss()
+            }
+        } message: {
+            Text("This cannot be undone.")
         }
     }
 }
@@ -52,21 +78,25 @@ private struct SetRowView: View {
 
     var body: some View {
         HStack(spacing: 12) {
-            // Set number badge
             Text("\(setNumber)")
                 .font(.caption.bold())
                 .foregroundStyle(.blue)
                 .frame(width: 24, height: 24)
                 .background(.blue.opacity(0.12), in: Circle())
 
-            // Reps
-            if let reps = set.targetReps {
-                Text("\(reps) reps")
-                    .font(.subheadline)
+            if set.isTimed {
+                HStack(spacing: 4) {
+                    Image(systemName: "timer")
+                        .imageScale(.small)
+                    Text(formattedDuration(set.durationSeconds ?? 0))
+                }
+                .font(.subheadline)
+                .foregroundStyle(.purple)
+            } else if let reps = set.targetReps {
+                Text("\(reps) reps").font(.subheadline)
             } else {
                 HStack(spacing: 4) {
-                    Image(systemName: "flame.fill")
-                        .imageScale(.small)
+                    Image(systemName: "flame.fill").imageScale(.small)
                     Text("To failure")
                 }
                 .font(.subheadline)
@@ -75,7 +105,6 @@ private struct SetRowView: View {
 
             Spacer()
 
-            // Weight
             if let kg = set.suggestedWeightKg {
                 Label("\(kg, specifier: "%.1f") kg", systemImage: "scalemass.fill")
                     .font(.caption)
@@ -85,12 +114,17 @@ private struct SetRowView: View {
                     .background(.blue.opacity(0.08), in: Capsule())
             }
 
-            // Rest
             if set.restSeconds > 0 {
                 Label("\(set.restSeconds)s", systemImage: "timer")
                     .font(.caption)
                     .foregroundStyle(.secondary)
             }
         }
+    }
+
+    private func formattedDuration(_ seconds: Int) -> String {
+        let m = seconds / 60
+        let s = seconds % 60
+        return m > 0 ? "\(m)m \(s)s" : "\(s)s"
     }
 }

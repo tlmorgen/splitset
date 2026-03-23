@@ -21,7 +21,6 @@ targets:
       path: SplitSet/Resources/SplitSet.entitlements
       properties:
         com.apple.developer.healthkit: true
-        com.apple.developer.healthkit.access: []
     dependencies:
       - package: SplitSetCore
       - sdk: WatchConnectivity.framework
@@ -37,6 +36,7 @@ targets:
       base:
         PRODUCT_BUNDLE_IDENTIFIER: com.tlmorgen.splitset
         SWIFT_VERSION: "5.9"
+        CODE_SIGN_STYLE: Automatic
 
   SplitSetWatch:
     type: application
@@ -48,7 +48,6 @@ targets:
       path: SplitSetWatch/Resources/SplitSetWatch.entitlements
       properties:
         com.apple.developer.healthkit: true
-        com.apple.developer.healthkit.access: []
     dependencies:
       - package: SplitSetCore
       - sdk: WatchConnectivity.framework
@@ -65,3 +64,4 @@ targets:
       base:
         PRODUCT_BUNDLE_IDENTIFIER: com.tlmorgen.splitset.watchkitapp
         SWIFT_VERSION: "5.9"
+        CODE_SIGN_STYLE: Automatic
