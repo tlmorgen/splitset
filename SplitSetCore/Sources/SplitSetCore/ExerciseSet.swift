@@ -8,7 +8,6 @@ public struct ExerciseSet: Identifiable, Codable, Hashable, Sendable {
     public var durationSeconds: Int?
     /// Optional guide shown on the watch — not required to log
     public var suggestedWeightKg: Double?
-    public var restSeconds: Int
 
     public var isTimed: Bool { durationSeconds != nil }
 
@@ -16,13 +15,11 @@ public struct ExerciseSet: Identifiable, Codable, Hashable, Sendable {
         id: UUID = UUID(),
         targetReps: Int? = 10,
         durationSeconds: Int? = nil,
-        suggestedWeightKg: Double? = nil,
-        restSeconds: Int = 60
+        suggestedWeightKg: Double? = nil
     ) {
         self.id = id
         self.targetReps = targetReps
         self.durationSeconds = durationSeconds
         self.suggestedWeightKg = suggestedWeightKg
-        self.restSeconds = restSeconds
     }
 }

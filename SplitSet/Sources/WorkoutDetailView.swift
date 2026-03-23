@@ -31,10 +31,18 @@ struct WorkoutDetailView: View {
                             .foregroundStyle(.primary)
                             .textCase(nil)
                         Spacer()
-                        Text("\(exercise.sets.count) sets")
-                            .font(.caption)
-                            .foregroundStyle(.secondary)
-                            .textCase(nil)
+                        HStack(spacing: 8) {
+                            if exercise.restSeconds > 0 {
+                                Label("\(exercise.restSeconds)s rest", systemImage: "timer")
+                                    .font(.caption)
+                                    .foregroundStyle(.secondary)
+                                    .textCase(nil)
+                            }
+                            Text("\(exercise.sets.count) sets")
+                                .font(.caption)
+                                .foregroundStyle(.secondary)
+                                .textCase(nil)
+                        }
                     }
                 }
             }
@@ -112,12 +120,6 @@ private struct SetRowView: View {
                     .padding(.horizontal, 8)
                     .padding(.vertical, 3)
                     .background(.blue.opacity(0.08), in: Capsule())
-            }
-
-            if set.restSeconds > 0 {
-                Label("\(set.restSeconds)s", systemImage: "timer")
-                    .font(.caption)
-                    .foregroundStyle(.secondary)
             }
         }
     }

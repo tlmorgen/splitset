@@ -6,7 +6,11 @@ import SplitSetCore
 @Observable
 @MainActor
 final class WatchConnectivityManager: NSObject {
+    #if DEBUG
+    var workouts: [Workout] = Workout.samples
+    #else
     var workouts: [Workout] = []
+    #endif
 
     func activate() {
         guard WCSession.isSupported() else { return }

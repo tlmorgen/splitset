@@ -1,5 +1,6 @@
 import SwiftUI
 import SwiftData
+import SplitSetCore
 
 struct WorkoutListView: View {
     @Query(sort: \WorkoutModel.createdAt) var workouts: [WorkoutModel]
@@ -33,6 +34,9 @@ struct WorkoutListView: View {
                 WorkoutEditView()
             }
             .onAppear {
+                #if DEBUG
+                seedSampleData()
+                #endif
                 PhoneConnectivityManager.shared.syncWorkouts(workouts)
             }
             .onChange(of: workouts) {
@@ -103,6 +107,34 @@ struct WorkoutListView: View {
             modelContext.delete(workouts[index])
         }
     }
+
+    #if DEBUG
+    private func seedSampleData() {
+        guard workouts.isEmpty else { return }
+        for sample in Workout.samples {
+            let workout = WorkoutModel(name: sample.name, trackWeights: sample.trackWeights)
+            for (i, ex) in sample.exercises.enumerated() {
+                let exercise = ExerciseModel(
+                    name: ex.name,
+                    notes: ex.notes,
+                    order: i,
+                    restSeconds: ex.restSeconds,
+                    isUniform: true
+                )
+                for (j, s) in ex.sets.enumerated() {
+                    exercise.sets.append(ExerciseSetModel(
+                        targetReps: s.targetReps,
+                        durationSeconds: s.durationSeconds,
+                        suggestedWeightKg: s.suggestedWeightKg,
+                        order: j
+                    ))
+                }
+                workout.exercises.append(exercise)
+            }
+            modelContext.insert(workout)
+        }
+    }
+    #endif
 }
 
 // MARK: - Workout Row

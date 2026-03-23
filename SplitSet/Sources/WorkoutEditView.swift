@@ -139,14 +139,23 @@ struct WorkoutEditView: View {
     }
 
     private func setsSummary(_ exercise: ExerciseModel) -> String {
-        let count = exercise.sets.count
-        let repParts = exercise.sets.sorted { $0.order < $1.order }.map { set in
-            set.targetReps.map { "\($0)" } ?? "F"
+        let sorted = exercise.sets.sorted { $0.order < $1.order }
+        let count = sorted.count
+
+        let labels = sorted.map { set -> String in
+            if set.isTimed, let dur = set.durationSeconds {
+                return dur >= 60 ? "\(dur / 60)m \(dur % 60)s" : "\(dur)s"
+            }
+            if let reps = set.targetReps { return "\(reps) reps" }
+            return "failure"
         }
-        let unique = Set(repParts)
-        if unique.count == 1, let rep = repParts.first {
-            return "\(count) × \(rep == "F" ? "failure" : "\(rep) reps")"
+
+        let unique = Set(labels)
+        if unique.count == 1, let label = labels.first {
+            return "\(count) × \(label)"
         }
-        return "\(count) sets · " + repParts.joined(separator: "/") + " reps"
+
+        let preview = labels.prefix(3).joined(separator: ", ")
+        return count > 3 ? "\(preview), …" : preview
     }
 }

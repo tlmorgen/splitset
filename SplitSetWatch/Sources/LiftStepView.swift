@@ -18,7 +18,11 @@ struct LiftStepView: View {
                 .font(.caption)
                 .foregroundStyle(.secondary)
 
-            if let reps = exerciseSet.targetReps {
+            if exerciseSet.isTimed, let dur = exerciseSet.durationSeconds {
+                Label(dur >= 60 ? "\(dur/60)m \(dur%60)s" : "\(dur)s", systemImage: "timer")
+                    .font(.title2.bold())
+                    .foregroundStyle(.purple)
+            } else if let reps = exerciseSet.targetReps {
                 Text("\(reps) reps")
                     .font(.title2.bold())
                     .foregroundStyle(.blue)

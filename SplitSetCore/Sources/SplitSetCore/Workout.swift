@@ -27,9 +27,9 @@ public struct Workout: Identifiable, Codable, Hashable, Sendable {
                 let isLastSet = setIdx == exercise.sets.count - 1
                 let isLastStep = isLastSet && isLastExercise
 
-                if !isLastStep && exerciseSet.restSeconds > 0 {
+                if !isLastStep && exercise.restSeconds > 0 {
                     let nextName = isLastSet ? nextExerciseName : exercise.name
-                    result.append(.rest(seconds: exerciseSet.restSeconds, nextName: nextName))
+                    result.append(.rest(seconds: exercise.restSeconds, nextName: nextName))
                 }
             }
         }

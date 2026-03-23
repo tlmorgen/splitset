@@ -46,7 +46,7 @@
 		3C2984A2D70E2B85905CF61B /* LiftStepView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LiftStepView.swift; sourceTree = "<group>"; };
 		4244D368CF6271C246682DCB /* SplitSetWatchApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SplitSetWatchApp.swift; sourceTree = "<group>"; };
 		4B2E290D985E191C044229D3 /* WorkoutEditView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WorkoutEditView.swift; sourceTree = "<group>"; };
-		5BCC19B8549699239EC6B348 /* SplitSetCore */ = {isa = PBXFileReference; lastKnownFileType = folder; name = SplitSetCore; path = SplitSetCore; sourceTree = SOURCE_ROOT; };
+		5BCC19B8549699239EC6B348 /* SplitSetCore */ = {isa = PBXFileReference; lastKnownFileType = folder; path = SplitSetCore; sourceTree = SOURCE_ROOT; };
 		6EC9A9CA8272FA635AAF4728 /* WatchConnectivity.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = WatchConnectivity.framework; path = System/Library/Frameworks/WatchConnectivity.framework; sourceTree = SDKROOT; };
 		761DE1D42EDE777650E362B3 /* WorkoutModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WorkoutModel.swift; sourceTree = "<group>"; };
 		800F789A97786903C35D9974 /* ExerciseSetEditView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ExerciseSetEditView.swift; sourceTree = "<group>"; };
@@ -57,7 +57,7 @@
 		BFFE42AF0E3761B5EE47DAB3 /* ExerciseModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ExerciseModel.swift; sourceTree = "<group>"; };
 		C8C4F68A50CA1F8E686FBEA0 /* WeightPickerView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WeightPickerView.swift; sourceTree = "<group>"; };
 		CBFCC0C65D9CC3E389495993 /* ContentView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ContentView.swift; sourceTree = "<group>"; };
-		DC7000F7EEBE037D122C4A6B /* SplitSet.app */ = {isa = PBXFileReference; includeInIndex = 0; lastKnownFileType = wrapper.application; path = SplitSet.app; sourceTree = BUILT_PRODUCTS_DIR; };
+		DC7000F7EEBE037D122C4A6B /* SplitSet.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = SplitSet.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		E32FC19C9582464665C7D727 /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
 		EAA996EA1A38E1C469E6243A /* WorkoutDetailView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WorkoutDetailView.swift; sourceTree = "<group>"; };
 		EE1E2582CDC5AD51079283F1 /* RestStepView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RestStepView.swift; sourceTree = "<group>"; };
@@ -430,6 +430,7 @@
 				CODE_SIGN_ENTITLEMENTS = SplitSet/Resources/SplitSet.entitlements;
 				CODE_SIGN_IDENTITY = "iPhone Developer";
 				CODE_SIGN_STYLE = Automatic;
+				DEVELOPMENT_TEAM = 8XN77HKABA;
 				INFOPLIST_FILE = SplitSet/Info.plist;
 				IPHONEOS_DEPLOYMENT_TARGET = 17.0;
 				LD_RUNPATH_SEARCH_PATHS = (
@@ -466,6 +467,7 @@
 				CODE_SIGN_ENTITLEMENTS = SplitSet/Resources/SplitSet.entitlements;
 				CODE_SIGN_IDENTITY = "iPhone Developer";
 				CODE_SIGN_STYLE = Automatic;
+				DEVELOPMENT_TEAM = 8XN77HKABA;
 				INFOPLIST_FILE = SplitSet/Info.plist;
 				IPHONEOS_DEPLOYMENT_TARGET = 17.0;
 				LD_RUNPATH_SEARCH_PATHS = (

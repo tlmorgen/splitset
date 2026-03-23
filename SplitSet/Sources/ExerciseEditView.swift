@@ -5,15 +5,18 @@ struct ExerciseEditView: View {
 
     @State private var name = ""
     @State private var notes = ""
+    @State private var restSeconds = 60
 
     // Uniform mode
     @State private var varyPerSet = false
+    @State private var uniformIsTimed = false
     @State private var uniformCount = 3
     @State private var uniformToFailure = false
     @State private var uniformReps = 10
+    @State private var uniformDurationMinutes = 0
+    @State private var uniformDurationSeconds = 30
     @State private var uniformHasWeight = false
     @State private var uniformWeight = 20.0
-    @State private var uniformRest = 60
 
     // Per-set mode
     @State private var sets: [ExerciseSetModel] = []
@@ -26,20 +29,30 @@ struct ExerciseEditView: View {
     init(onSave: @escaping (ExerciseModel) -> Void) {
         editingExercise = nil
         self.onSave = onSave
-        _name = State(initialValue: "")
-        _notes = State(initialValue: "")
-        _varyPerSet = State(initialValue: false)
-        _sets = State(initialValue: [])
     }
 
-    // Edit mode — skips uniform toggle, goes straight to per-set
+    // Edit mode — preserves uniform vs per-set
     init(editing exercise: ExerciseModel) {
         editingExercise = exercise
         self.onSave = { _ in }
         _name = State(initialValue: exercise.name)
         _notes = State(initialValue: exercise.notes ?? "")
-        _varyPerSet = State(initialValue: true)
+        _restSeconds = State(initialValue: exercise.restSeconds)
+        _varyPerSet = State(initialValue: !exercise.isUniform)
         _sets = State(initialValue: exercise.sets.sorted { $0.order < $1.order })
+
+        // Restore uniform controls from existing sets
+        if exercise.isUniform, let first = exercise.sets.first {
+            _uniformCount = State(initialValue: exercise.sets.count)
+            _uniformIsTimed = State(initialValue: first.isTimed)
+            _uniformToFailure = State(initialValue: first.targetReps == nil && !first.isTimed)
+            _uniformReps = State(initialValue: first.targetReps ?? 10)
+            let dur = first.durationSeconds ?? 30
+            _uniformDurationMinutes = State(initialValue: dur / 60)
+            _uniformDurationSeconds = State(initialValue: dur % 60)
+            _uniformHasWeight = State(initialValue: first.suggestedWeightKg != nil)
+            _uniformWeight = State(initialValue: first.suggestedWeightKg ?? 20.0)
+        }
     }
 
     private var isEditing: Bool { editingExercise != nil }
@@ -52,18 +65,23 @@ struct ExerciseEditView: View {
                 }
 
                 Section {
-                    if !isEditing {
-                        Toggle("Vary per set", isOn: $varyPerSet.animation())
-                            .onChange(of: varyPerSet) { _, on in
-                                if on { expandToPerSet() }
-                            }
+                    if !varyPerSet {
+                        Picker("Type", selection: $uniformIsTimed.animation()) {
+                            Text("Reps").tag(false)
+                            Text("Timed").tag(true)
+                        }
+                        .pickerStyle(.segmented)
+                        .listRowInsets(EdgeInsets(top: 8, leading: 16, bottom: 8, trailing: 16))
+
+                        uniformRows
+                    } else {
+                        perSetRows
                     }
 
-                    if varyPerSet {
-                        perSetRows
-                    } else {
-                        uniformRows
-                    }
+                    Toggle("Vary per set", isOn: $varyPerSet.animation())
+                        .onChange(of: varyPerSet) { _, on in
+                            if on { expandToPerSet() }
+                        }
                 } header: {
                     HStack {
                         Text("Sets")
@@ -74,6 +92,10 @@ struct ExerciseEditView: View {
                                 .textCase(nil)
                         }
                     }
+                }
+
+                Section("Rest Between Sets") {
+                    Stepper("\(restSeconds)s", value: $restSeconds, in: 0...600, step: 15)
                 }
 
                 Section("Notes") {
@@ -89,16 +111,7 @@ struct ExerciseEditView: View {
                 }
                 ToolbarItem(placement: .confirmationAction) {
                     Button(isEditing ? "Done" : "Add") {
-                        if let existing = editingExercise {
-                            existing.name = name
-                            existing.notes = notes.isEmpty ? nil : notes
-                            existing.sets = sets
-                            reorderSets()
-                        } else {
-                            let exercise = ExerciseModel(name: name, notes: notes.isEmpty ? nil : notes)
-                            exercise.sets = buildSets()
-                            onSave(exercise)
-                        }
+                        save()
                         dismiss()
                     }
                     .disabled(name.isEmpty)
@@ -118,10 +131,20 @@ struct ExerciseEditView: View {
     private var uniformRows: some View {
         Group {
             Stepper("Sets: \(uniformCount)", value: $uniformCount, in: 1...20)
-            Toggle("To failure", isOn: $uniformToFailure)
-            if !uniformToFailure {
-                Stepper("Reps: \(uniformReps)", value: $uniformReps, in: 1...100)
+
+            if uniformIsTimed {
+                HStack {
+                    Stepper("\(uniformDurationMinutes) min", value: $uniformDurationMinutes, in: 0...60)
+                    Divider()
+                    Stepper("\(uniformDurationSeconds) sec", value: $uniformDurationSeconds, in: 0...59, step: 5)
+                }
+            } else {
+                Toggle("To failure", isOn: $uniformToFailure)
+                if !uniformToFailure {
+                    Stepper("Reps: \(uniformReps)", value: $uniformReps, in: 1...100)
+                }
             }
+
             Toggle("Suggested weight", isOn: $uniformHasWeight)
             if uniformHasWeight {
                 HStack {
@@ -134,7 +157,6 @@ struct ExerciseEditView: View {
                     Text("kg").foregroundStyle(.secondary)
                 }
             }
-            Stepper("Rest: \(uniformRest)s", value: $uniformRest, in: 0...600, step: 15)
         }
     }
 
@@ -165,28 +187,55 @@ struct ExerciseEditView: View {
         }
     }
 
+    // MARK: - Save
+
+    private func save() {
+        if let existing = editingExercise {
+            existing.name = name
+            existing.notes = notes.isEmpty ? nil : notes
+            existing.restSeconds = restSeconds
+            existing.isUniform = !varyPerSet
+            if varyPerSet {
+                existing.sets = sets
+            } else {
+                // Rebuild uniform sets
+                let newSets = buildUniformSets()
+                existing.sets = newSets
+            }
+            reorderSets(existing.sets)
+        } else {
+            let exercise = ExerciseModel(
+                name: name,
+                notes: notes.isEmpty ? nil : notes,
+                restSeconds: restSeconds,
+                isUniform: !varyPerSet
+            )
+            exercise.sets = varyPerSet ? sets : buildUniformSets()
+            onSave(exercise)
+        }
+    }
+
     // MARK: - Helpers
 
     private func expandToPerSet() {
+        let duration = uniformIsTimed ? uniformDurationMinutes * 60 + uniformDurationSeconds : nil
         sets = (0..<uniformCount).map { i in
             ExerciseSetModel(
-                targetReps: uniformToFailure ? nil : uniformReps,
+                targetReps: uniformIsTimed ? nil : (uniformToFailure ? nil : uniformReps),
+                durationSeconds: duration,
                 suggestedWeightKg: uniformHasWeight ? uniformWeight : nil,
-                restSeconds: uniformRest,
                 order: i
             )
         }
     }
 
-    private func buildSets() -> [ExerciseSetModel] {
-        if varyPerSet {
-            return sets
-        }
+    private func buildUniformSets() -> [ExerciseSetModel] {
+        let duration = uniformIsTimed ? uniformDurationMinutes * 60 + uniformDurationSeconds : nil
         return (0..<uniformCount).map { i in
             ExerciseSetModel(
-                targetReps: uniformToFailure ? nil : uniformReps,
+                targetReps: uniformIsTimed ? nil : (uniformToFailure ? nil : uniformReps),
+                durationSeconds: duration,
                 suggestedWeightKg: uniformHasWeight ? uniformWeight : nil,
-                restSeconds: uniformRest,
                 order: i
             )
         }
@@ -194,17 +243,17 @@ struct ExerciseEditView: View {
 
     private func duplicatingLast() -> ExerciseSetModel {
         let last = sets.last
+        let isTimed = last?.isTimed ?? false
         return ExerciseSetModel(
-            targetReps: last?.targetReps ?? 10,
+            targetReps: isTimed ? nil : (last?.targetReps ?? 10),
             durationSeconds: last?.durationSeconds,
             suggestedWeightKg: last?.suggestedWeightKg,
-            restSeconds: last?.restSeconds ?? 60,
             order: sets.count
         )
     }
 
-    private func reorderSets() {
-        for (i, set) in sets.enumerated() { set.order = i }
+    private func reorderSets(_ target: [ExerciseSetModel]? = nil) {
+        for (i, set) in (target ?? sets).enumerated() { set.order = i }
     }
 }
 
@@ -235,12 +284,8 @@ private struct SetRowView: View {
                 } else {
                     Text("To failure").font(.subheadline).foregroundStyle(.orange)
                 }
-                HStack(spacing: 6) {
-                    if let kg = set.suggestedWeightKg {
-                        Text("\(kg, specifier: "%.1f") kg")
-                            .font(.caption).foregroundStyle(.secondary)
-                    }
-                    Text("\(set.restSeconds)s rest")
+                if let kg = set.suggestedWeightKg {
+                    Text("\(kg, specifier: "%.1f") kg")
                         .font(.caption).foregroundStyle(.secondary)
                 }
             }
