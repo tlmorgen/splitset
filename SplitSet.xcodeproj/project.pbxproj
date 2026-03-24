@@ -9,6 +9,7 @@
 /* Begin PBXBuildFile section */
 		0B546A610CC5B242D607A538 /* ExerciseEditView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 28B136F7F55032C1DF7F9F5A /* ExerciseEditView.swift */; };
 		1157C872B57C51AF70839EAC /* WatchConnectivity.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 6EC9A9CA8272FA635AAF4728 /* WatchConnectivity.framework */; };
+		1BA8500BDE3A13ABD5C45378 /* SplitSetWatch.app in Embed Watch Content */ = {isa = PBXBuildFile; fileRef = 3106450A21A58BF7A4680129 /* SplitSetWatch.app */; settings = {ATTRIBUTES = (RemoveHeadersOnCopy, ); }; };
 		1FEC772D0C0909C715140C90 /* SplitSetCore in Frameworks */ = {isa = PBXBuildFile; productRef = 1F433237A59CB720F936BD98 /* SplitSetCore */; };
 		21CC614AD14BBCCCC70FC34B /* HealthKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 2EDE6C1E9DD6639776563D5D /* HealthKit.framework */; };
 		22DE42FF65F84DB4E75707A1 /* ExerciseSetModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = F3F4E30F41BC81FD265DFE5D /* ExerciseSetModel.swift */; };
@@ -37,6 +38,30 @@
 		FE1AFE91A019DCC5CED95ED7 /* TimedSetView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1AC7F0D846EE1AAFB389E523 /* TimedSetView.swift */; };
 		FEB6CDE1911498DB671371E7 /* LiftStepView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3C2984A2D70E2B85905CF61B /* LiftStepView.swift */; };
 /* End PBXBuildFile section */
+
+/* Begin PBXContainerItemProxy section */
+		9CBF792D33B0A0FB30A21A6D /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 89BF3A8CE5EC394FF47ACD92 /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = 30183EA5E8F422BD6C61DE46;
+			remoteInfo = SplitSetWatch;
+		};
+/* End PBXContainerItemProxy section */
+
+/* Begin PBXCopyFilesBuildPhase section */
+		5F647A560CA2EBB97BB4A317 /* Embed Watch Content */ = {
+			isa = PBXCopyFilesBuildPhase;
+			buildActionMask = 2147483647;
+			dstPath = "$(CONTENTS_FOLDER_PATH)/Watch";
+			dstSubfolderSpec = 16;
+			files = (
+				1BA8500BDE3A13ABD5C45378 /* SplitSetWatch.app in Embed Watch Content */,
+			);
+			name = "Embed Watch Content";
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXCopyFilesBuildPhase section */
 
 /* Begin PBXFileReference section */
 		0906D9CE5AF29CE5E454A444 /* SplitSetApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SplitSetApp.swift; sourceTree = "<group>"; };
@@ -200,10 +225,12 @@
 				68921E9A9BE361C53D13BF41 /* Sources */,
 				F5C877729965EBFFA2692F94 /* Resources */,
 				DEB4CBC289F958BCC87126B0 /* Frameworks */,
+				5F647A560CA2EBB97BB4A317 /* Embed Watch Content */,
 			);
 			buildRules = (
 			);
 			dependencies = (
+				603EC91CCEA05B6DE26AA5B9 /* PBXTargetDependency */,
 			);
 			name = SplitSet;
 			packageProductDependencies = (
@@ -312,6 +339,14 @@
 			runOnlyForDeploymentPostprocessing = 0;
 		};
 /* End PBXSourcesBuildPhase section */
+
+/* Begin PBXTargetDependency section */
+		603EC91CCEA05B6DE26AA5B9 /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = 30183EA5E8F422BD6C61DE46 /* SplitSetWatch */;
+			targetProxy = 9CBF792D33B0A0FB30A21A6D /* PBXContainerItemProxy */;
+		};
+/* End PBXTargetDependency section */
 
 /* Begin XCBuildConfiguration section */
 		077A7A0ECC2D3E40793448A7 /* Release */ = {
@@ -440,6 +475,7 @@
 				CODE_SIGN_ENTITLEMENTS = SplitSet/Resources/SplitSet.entitlements;
 				CODE_SIGN_IDENTITY = "iPhone Developer";
 				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 3;
 				DEVELOPMENT_TEAM = 8XN77HKABA;
 				INFOPLIST_FILE = SplitSet/Info.plist;
 				IPHONEOS_DEPLOYMENT_TARGET = 17.0;
@@ -447,10 +483,12 @@
 					"$(inherited)",
 					"@executable_path/Frameworks",
 				);
+				MARKETING_VERSION = 1.0;
 				PRODUCT_BUNDLE_IDENTIFIER = com.tlmorgen.splitset;
 				SDKROOT = iphoneos;
 				SWIFT_VERSION = 5.9;
 				TARGETED_DEVICE_FAMILY = "1,2";
+				VERSIONING_SYSTEM = "apple-generic";
 			};
 			name = Release;
 		};
@@ -460,13 +498,16 @@
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				CODE_SIGN_ENTITLEMENTS = SplitSetWatch/Resources/SplitSetWatch.entitlements;
 				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 3;
 				DEVELOPMENT_TEAM = 8XN77HKABA;
 				INFOPLIST_FILE = SplitSetWatch/Info.plist;
+				MARKETING_VERSION = 1.0;
 				PRODUCT_BUNDLE_IDENTIFIER = com.tlmorgen.splitset.watchkitapp;
 				SDKROOT = watchos;
 				SKIP_INSTALL = YES;
 				SWIFT_VERSION = 5.9;
 				TARGETED_DEVICE_FAMILY = 4;
+				VERSIONING_SYSTEM = "apple-generic";
 				WATCHOS_DEPLOYMENT_TARGET = 10.0;
 			};
 			name = Debug;
@@ -478,6 +519,7 @@
 				CODE_SIGN_ENTITLEMENTS = SplitSet/Resources/SplitSet.entitlements;
 				CODE_SIGN_IDENTITY = "iPhone Developer";
 				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 3;
 				DEVELOPMENT_TEAM = 8XN77HKABA;
 				INFOPLIST_FILE = SplitSet/Info.plist;
 				IPHONEOS_DEPLOYMENT_TARGET = 17.0;
@@ -485,10 +527,12 @@
 					"$(inherited)",
 					"@executable_path/Frameworks",
 				);
+				MARKETING_VERSION = 1.0;
 				PRODUCT_BUNDLE_IDENTIFIER = com.tlmorgen.splitset;
 				SDKROOT = iphoneos;
 				SWIFT_VERSION = 5.9;
 				TARGETED_DEVICE_FAMILY = "1,2";
+				VERSIONING_SYSTEM = "apple-generic";
 			};
 			name = Debug;
 		};
@@ -498,13 +542,16 @@
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				CODE_SIGN_ENTITLEMENTS = SplitSetWatch/Resources/SplitSetWatch.entitlements;
 				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 3;
 				DEVELOPMENT_TEAM = 8XN77HKABA;
 				INFOPLIST_FILE = SplitSetWatch/Info.plist;
+				MARKETING_VERSION = 1.0;
 				PRODUCT_BUNDLE_IDENTIFIER = com.tlmorgen.splitset.watchkitapp;
 				SDKROOT = watchos;
 				SKIP_INSTALL = YES;
 				SWIFT_VERSION = 5.9;
 				TARGETED_DEVICE_FAMILY = 4;
+				VERSIONING_SYSTEM = "apple-generic";
 				WATCHOS_DEPLOYMENT_TARGET = 10.0;
 			};
 			name = Release;
