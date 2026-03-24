@@ -16,6 +16,9 @@ struct WorkoutPlayerView: View {
     @State private var setLogs: [SetLog] = []
     @State private var pendingLift: (exercise: Exercise, exerciseSet: ExerciseSet, setNumber: Int)?
     @State private var lastWeights: [UUID: Double] = [:]
+    @State private var showStopConfirm = false
+    @State private var pickerWeight: Double = 0
+    @Environment(\.dismiss) private var dismiss
 
     init(workout: Workout, healthKit: HealthKitManager) {
         self.workout = workout
@@ -30,44 +33,96 @@ struct WorkoutPlayerView: View {
     }
 
     var body: some View {
-        VStack(spacing: 0) {
-            heartRateHeader
-            Divider()
-            stepContent
-                .padding(.horizontal, 8)
-                .padding(.vertical, 6)
+        stepContent
+            .frame(maxHeight: .infinity, alignment: .top)
+            .padding(.horizontal, 8)
+            .padding(.vertical, 6)
+            .navigationTitle {
+                HStack(spacing: 2) {
+                    Image(systemName: "heart.fill")
+                        .foregroundStyle(.red)
+                        .imageScale(.small)
+                    if healthKit.heartRate > 0 {
+                        Text("\(Int(healthKit.heartRate)) bpm")
+                            .font(.caption.monospacedDigit())
+                            .contentTransition(.numericText())
+                    } else {
+                        Text("-- bpm")
+                            .font(.caption.monospacedDigit())
+                            .foregroundStyle(.secondary)
+                    }
+                }
+            }
+            .navigationBarTitleDisplayMode(.inline)
+            .navigationBarBackButtonHidden(true)
+            .toolbar {
+                ToolbarItem(placement: .cancellationAction) {
+                    Button {
+                        showStopConfirm = true
+                    } label: {
+                        Image(systemName: "xmark.circle.fill")
+                            .foregroundStyle(.red)
+                    }
+                }
+                ToolbarItem(placement: .bottomBar) {
+                    bottomBar
+                }
+            }
+        .confirmationDialog("End workout?", isPresented: $showStopConfirm) {
+            Button("End Workout", role: .destructive) {
+                dismiss()
+            }
+            Button("Cancel", role: .cancel) { }
         }
-        .navigationTitle(workout.name)
-        .navigationBarTitleDisplayMode(.inline)
         .task { await healthKit.startWorkout() }
         .onDisappear { Task { await healthKit.endWorkout() } }
     }
 
-    // MARK: - Header
+    // MARK: - Bottom Bar
 
-    private var heartRateHeader: some View {
-        HStack {
-            Image(systemName: "heart.fill")
-                .foregroundStyle(.red)
-                .imageScale(.small)
-            if healthKit.heartRate > 0 {
-                Text("\(Int(healthKit.heartRate)) bpm")
-                    .font(.caption.monospacedDigit())
-                    .contentTransition(.numericText())
-            } else {
-                Text("-- bpm")
-                    .font(.caption.monospacedDigit())
-                    .foregroundStyle(.secondary)
+    @ViewBuilder
+    private var bottomBar: some View {
+        if isCompleted {
+            EmptyView()
+        } else if let pending = pendingLift, workout.trackWeights {
+            HStack(spacing: 8) {
+                Button("Skip") {
+                    logSet(exercise: pending.exercise, exerciseSet: pending.exerciseSet, setNumber: pending.setNumber, weight: nil)
+                    pendingLift = nil
+                    advance()
+                }
+                .buttonStyle(.bordered)
+                .tint(.secondary)
+
+                Button("Log") {
+                    let weight = WeightUnit.current.toKg(pickerWeight)
+                    logSet(exercise: pending.exercise, exerciseSet: pending.exerciseSet, setNumber: pending.setNumber, weight: weight)
+                    pendingLift = nil
+                    advance()
+                }
+                .buttonStyle(.borderedProminent)
+                .tint(.blue)
             }
-            Spacer()
-            if !isCompleted {
-                Text("\(currentStepIndex + 1)/\(steps.count)")
-                    .font(.caption2)
-                    .foregroundStyle(.tertiary)
+        } else if let step = currentStep {
+            switch step {
+            case .lift(let exercise, let exerciseSet, let setNumber):
+                let tint: Color = exerciseSet.isTimed ? .purple : .blue
+                Button(action: {
+                    completeLift(exercise: exercise, exerciseSet: exerciseSet, setNumber: setNumber)
+                }) {
+                    Text("Done")
+                        .frame(maxWidth: .infinity)
+                }
+                .buttonStyle(.borderedProminent)
+                .tint(tint)
+
+            case .rest:
+                Button("Skip") {
+                    skipRest()
+                }
+                .buttonStyle(.bordered)
             }
         }
-        .padding(.horizontal, 10)
-        .padding(.vertical, 4)
     }
 
     // MARK: - Step Content
@@ -76,14 +131,8 @@ struct WorkoutPlayerView: View {
     private var stepContent: some View {
         if isCompleted {
             completedView
-        } else if let pending = pendingLift, workout.trackWeights {
-            WeightPickerView(
-                lastWeight: lastWeights[pending.exerciseSet.id] ?? pending.exerciseSet.suggestedWeightKg
-            ) { weight in
-                logSet(exercise: pending.exercise, exerciseSet: pending.exerciseSet, setNumber: pending.setNumber, weight: weight)
-                pendingLift = nil
-                advance()
-            }
+        } else if pendingLift != nil, workout.trackWeights {
+            WeightPickerView(displayWeight: $pickerWeight)
         } else if let step = currentStep {
             switch step {
             case .lift(let exercise, let exerciseSet, let setNumber):
@@ -93,9 +142,7 @@ struct WorkoutPlayerView: View {
                         exerciseSet: exerciseSet,
                         setNumber: setNumber,
                         endDate: timedEndDate
-                    ) {
-                        completeLift(exercise: exercise, exerciseSet: exerciseSet, setNumber: setNumber)
-                    }
+                    )
                     .onAppear {
                         timedEndDate = Date().addingTimeInterval(Double(duration))
                         timedAutoAdvanced = false
@@ -112,15 +159,11 @@ struct WorkoutPlayerView: View {
                         }
                     }
                 } else {
-                    LiftStepView(exercise: exercise, exerciseSet: exerciseSet, setNumber: setNumber) {
-                        completeLift(exercise: exercise, exerciseSet: exerciseSet, setNumber: setNumber)
-                    }
+                    LiftStepView(exercise: exercise, exerciseSet: exerciseSet, setNumber: setNumber)
                 }
 
             case .rest(let seconds, let nextName):
-                RestStepView(restEndDate: restEndDate, nextExerciseName: nextName) {
-                    skipRest()
-                }
+                RestStepView(restEndDate: restEndDate, nextExerciseName: nextName)
                 .onAppear {
                     restEndDate = Date().addingTimeInterval(Double(seconds))
                     restAutoAdvanced = false
@@ -172,6 +215,9 @@ struct WorkoutPlayerView: View {
     private func completeLift(exercise: Exercise, exerciseSet: ExerciseSet, setNumber: Int) {
         WKInterfaceDevice.current().play(.stop)
         if workout.trackWeights && !exerciseSet.isTimed {
+            let unit = WeightUnit.current
+            let lastKg = lastWeights[exerciseSet.id] ?? exerciseSet.suggestedWeightKg
+            pickerWeight = lastKg.map { unit.fromKg($0).rounded() } ?? unit.defaultWeight
             pendingLift = (exercise, exerciseSet, setNumber)
         } else {
             logSet(exercise: exercise, exerciseSet: exerciseSet, setNumber: setNumber, weight: nil)

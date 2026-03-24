@@ -3,7 +3,6 @@ import SwiftUI
 struct RestStepView: View {
     let restEndDate: Date
     let nextExerciseName: String
-    let onSkip: () -> Void
 
     var body: some View {
         TimelineView(.periodic(from: .now, by: 1)) { context in
@@ -25,9 +24,6 @@ struct RestStepView: View {
                     .lineLimit(1)
                     .minimumScaleFactor(0.6)
 
-                Button("Skip", action: onSkip)
-                    .buttonStyle(.bordered)
-                    .font(.caption)
             }
         }
     }
