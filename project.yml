@@ -21,8 +21,8 @@ targets:
         SWIFT_VERSION: "5.9"
         CODE_SIGN_STYLE: Automatic
         DEVELOPMENT_TEAM: 8XN77HKABA
-        CURRENT_PROJECT_VERSION: "1"
-        MARKETING_VERSION: "1.0"
+        CURRENT_PROJECT_VERSION: "30"
+        MARKETING_VERSION: "1.2"
         VERSIONING_SYSTEM: apple-generic
     sources:
       - path: SplitSet/Sources
@@ -91,6 +91,6 @@ targets:
         SWIFT_VERSION: "5.9"
         CODE_SIGN_STYLE: Automatic
         DEVELOPMENT_TEAM: 8XN77HKABA
-        CURRENT_PROJECT_VERSION: "1"
-        MARKETING_VERSION: "1.0"
+        CURRENT_PROJECT_VERSION: "30"
+        MARKETING_VERSION: "1.2"
         VERSIONING_SYSTEM: apple-generic
