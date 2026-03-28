@@ -12,68 +12,77 @@ struct WorkoutListView: View {
 
     var body: some View {
         NavigationStack {
-            Group {
-                if workouts.isEmpty {
-                    emptyState
-                } else {
-                    workoutList
+            mainContent
+        }
+        .onChange(of: PhoneConnectivityManager.shared.receivedSession) { _, session in
+            guard let session else { return }
+            persistSession(session)
+            PhoneConnectivityManager.shared.receivedSession = nil
+        }
+    }
+
+    private var mainContent: some View {
+        Group {
+            if workouts.isEmpty {
+                emptyState
+            } else {
+                workoutList
+            }
+        }
+        .navigationTitle("SplitSet")
+        .navigationDestination(for: WorkoutModel.self) { workout in
+            WorkoutDetailView(workout: workout)
+        }
+        .toolbar {
+            ToolbarItem(placement: .cancellationAction) {
+                Button {
+                    showingHelp = true
+                } label: {
+                    Image(systemName: "questionmark.circle")
                 }
             }
-            .navigationTitle("SplitSet")
-            .navigationDestination(for: WorkoutModel.self) { workout in
-                WorkoutDetailView(workout: workout)
-            }
-            .toolbar {
-                ToolbarItem(placement: .cancellationAction) {
-                    Button {
-                        showingHelp = true
-                    } label: {
-                        Image(systemName: "questionmark.circle")
-                    }
-                }
-                ToolbarItem(placement: .primaryAction) {
-                    Button {
-                        showingNewWorkout = true
-                    } label: {
-                        Image(systemName: "plus")
-                            .fontWeight(.semibold)
-                    }
+            ToolbarItem(placement: .primaryAction) {
+                Button {
+                    showingNewWorkout = true
+                } label: {
+                    Image(systemName: "plus")
+                        .fontWeight(.semibold)
                 }
             }
-            .sheet(isPresented: $showingNewWorkout) {
-                WorkoutEditView()
-            }
-            .sheet(isPresented: $showingHelp) {
-                HelpView()
-            }
-            .onAppear {
-                #if DEBUG
-                seedSampleData()
-                #endif
-                PhoneConnectivityManager.shared.syncWorkouts(workouts)
-            }
-            .onChange(of: workouts) {
-                PhoneConnectivityManager.shared.syncWorkouts(workouts)
-            }
-            .onOpenURL { url in
-                importWorkout(from: url)
-            }
-            .alert("Workout Imported", isPresented: Binding(
-                get: { importedWorkoutName != nil },
-                set: { if !$0 { importedWorkoutName = nil } }
-            )) {
-                Button("OK", role: .cancel) { }
-            } message: {
-                Text("\"\(importedWorkoutName ?? "")\" has been added to your workouts.")
-            }
-            .alert("Import Failed", isPresented: Binding(
-                get: { importError != nil },
-                set: { if !$0 { importError = nil } }
-            )) {
-                Button("OK", role: .cancel) { }
-            } message: {
-                Text(importError ?? "The file could not be read.")
-            }
+        }
+        .sheet(isPresented: $showingNewWorkout) {
+            WorkoutEditView()
+        }
+        .sheet(isPresented: $showingHelp) {
+            HelpView()
+        }
+        .onAppear {
+            #if DEBUG
+            seedSampleData()
+            #endif
+            PhoneConnectivityManager.shared.syncWorkouts(workouts)
+        }
+        .onChange(of: workouts) {
+            PhoneConnectivityManager.shared.syncWorkouts(workouts)
+        }
+        .onOpenURL { url in
+            importWorkout(from: url)
+        }
+        .alert("Workout Imported", isPresented: Binding(
+            get: { importedWorkoutName != nil },
+            set: { if !$0 { importedWorkoutName = nil } }
+        )) {
+            Button("OK", role: .cancel) { }
+        } message: {
+            Text("\"\(importedWorkoutName ?? "")\" has been added to your workouts.")
+        }
+        .alert("Import Failed", isPresented: Binding(
+            get: { importError != nil },
+            set: { if !$0 { importError = nil } }
+        )) {
+            Button("OK", role: .cancel) { }
+        } message: {
+            Text(importError ?? "The file could not be read.")
         }
     }
 
@@ -174,30 +183,114 @@ struct WorkoutListView: View {
         }
     }
 
+    private func persistSession(_ session: WorkoutSession) {
+        let model = SessionModel(
+            syncId: session.id,
+            workoutSyncId: session.workoutId,
+            startDate: session.startDate,
+            endDate: session.endDate
+        )
+        for log in session.setLogs {
+            let logModel = SetLogModel(
+                syncId: log.id,
+                exerciseSetId: log.exerciseSetId,
+                setNumber: log.setNumber,
+                weightKg: log.weightKg,
+                peakAccelerationG: log.accelerationData?.peakAccelerationG,
+                averageAccelerationG: log.accelerationData?.averageAccelerationG,
+                completedAt: log.completedAt
+            )
+            model.setLogs.append(logModel)
+        }
+        modelContext.insert(model)
+    }
+
     #if DEBUG
     private func seedSampleData() {
         guard workouts.isEmpty else { return }
-        for sample in Workout.samples {
+
+        // Enable acceleration tracking on Chest Day
+        let chestSample = Workout.sample
+        let chestWorkout = WorkoutModel(name: chestSample.name, trackWeights: chestSample.trackWeights, trackAcceleration: true)
+        var chestExerciseSets: [[ExerciseSetModel]] = []
+        for (i, ex) in chestSample.exercises.enumerated() {
+            let exercise = ExerciseModel(name: ex.name, notes: ex.notes, order: i, restSeconds: ex.restSeconds, isUniform: true)
+            var sets: [ExerciseSetModel] = []
+            for (j, s) in ex.sets.enumerated() {
+                let setModel = ExerciseSetModel(targetReps: s.targetReps, durationSeconds: s.durationSeconds, suggestedWeightKg: s.suggestedWeightKg, order: j)
+                exercise.sets.append(setModel)
+                sets.append(setModel)
+            }
+            chestExerciseSets.append(sets)
+            chestWorkout.exercises.append(exercise)
+        }
+        modelContext.insert(chestWorkout)
+
+        for sample in Workout.samples.dropFirst() {
             let workout = WorkoutModel(name: sample.name, trackWeights: sample.trackWeights)
             for (i, ex) in sample.exercises.enumerated() {
-                let exercise = ExerciseModel(
-                    name: ex.name,
-                    notes: ex.notes,
-                    order: i,
-                    restSeconds: ex.restSeconds,
-                    isUniform: true
-                )
+                let exercise = ExerciseModel(name: ex.name, notes: ex.notes, order: i, restSeconds: ex.restSeconds, isUniform: true)
                 for (j, s) in ex.sets.enumerated() {
-                    exercise.sets.append(ExerciseSetModel(
-                        targetReps: s.targetReps,
-                        durationSeconds: s.durationSeconds,
-                        suggestedWeightKg: s.suggestedWeightKg,
-                        order: j
-                    ))
+                    exercise.sets.append(ExerciseSetModel(targetReps: s.targetReps, durationSeconds: s.durationSeconds, suggestedWeightKg: s.suggestedWeightKg, order: j))
                 }
                 workout.exercises.append(exercise)
             }
             modelContext.insert(workout)
+        }
+
+        seedSampleSessions(for: chestWorkout, exerciseSets: chestExerciseSets)
+    }
+
+    // Seed 3 past sessions for Chest Day with realistic weight and acceleration data
+    private func seedSampleSessions(for workout: WorkoutModel, exerciseSets: [[ExerciseSetModel]]) {
+        // Weights per exercise (kg): warmup, bench, incline, curl, pushdown
+        let weights: [[Double?]] = [
+            [10, 10],
+            [60, 75, 85],
+            [60, 60, 60],
+            [15, 15, 12],
+            [20, 20, 17.5]
+        ]
+        // Peak / avg acceleration per exercise (g) — heavier lifts are faster
+        let accelData: [[(Double, Double)]] = [
+            [(0.6, 0.3), (0.7, 0.35)],
+            [(1.4, 0.7), (1.6, 0.8), (1.9, 0.95)],
+            [(1.2, 0.6), (1.3, 0.65), (1.1, 0.55)],
+            [(1.0, 0.5), (1.1, 0.55), (0.9, 0.45)],
+            [(0.8, 0.4), (0.9, 0.45), (0.7, 0.35)]
+        ]
+
+        let sessionDates: [TimeInterval] = [-14 * 86400, -7 * 86400, -2 * 86400]
+        let durations: [TimeInterval] = [52 * 60, 48 * 60, 55 * 60]
+
+        for (si, offset) in sessionDates.enumerated() {
+            let start = Date(timeIntervalSinceNow: offset)
+            let end = start.addingTimeInterval(durations[si])
+            let session = SessionModel(workoutSyncId: workout.syncId, startDate: start, endDate: end)
+            var elapsed: TimeInterval = 0
+
+            for (ei, sets) in exerciseSets.enumerated() {
+                let wList = ei < weights.count ? weights[ei] : []
+                let aList = ei < accelData.count ? accelData[ei] : []
+                for (setIdx, setModel) in sets.enumerated() {
+                    elapsed += 35
+                    let weight: Double? = setIdx < wList.count ? wList[setIdx] : nil
+                    let (peak, avg) = setIdx < aList.count ? aList[setIdx] : (0.0, 0.0)
+                    // Add slight variation between sessions
+                    let variation = Double(si) * 0.05
+                    let log = SetLogModel(
+                        exerciseSetId: setModel.syncId,
+                        setNumber: setIdx + 1,
+                        weightKg: weight,
+                        peakAccelerationG: peak + variation,
+                        averageAccelerationG: avg + variation,
+                        completedAt: start.addingTimeInterval(elapsed)
+                    )
+                    session.setLogs.append(log)
+                    elapsed += 90 // rest
+                }
+            }
+            modelContext.insert(session)
         }
     }
     #endif
@@ -242,6 +335,11 @@ private struct WorkoutRowView: View {
                 Image(systemName: "scalemass.fill")
                     .imageScale(.small)
                     .foregroundStyle(.blue.opacity(0.6))
+            }
+            if workout.trackAcceleration {
+                Image(systemName: "bolt.fill")
+                    .imageScale(.small)
+                    .foregroundStyle(.orange.opacity(0.7))
             }
         }
         .padding(.vertical, 4)

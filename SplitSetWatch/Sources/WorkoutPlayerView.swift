@@ -5,8 +5,10 @@ import SplitSetCore
 struct WorkoutPlayerView: View {
     let workout: Workout
     let healthKit: HealthKitManager
+    let connectivity: WatchConnectivityManager
 
     private let steps: [WorkoutStep]
+    private let workoutStartDate = Date()
 
     @State private var currentStepIndex = 0
     @State private var restEndDate: Date = .now
@@ -15,16 +17,19 @@ struct WorkoutPlayerView: View {
     @State private var timedAutoAdvanced = false
     @State private var setLogs: [SetLog] = []
     @State private var pendingLift: (exercise: Exercise, exerciseSet: ExerciseSet, setNumber: Int)?
+    @State private var pendingAcceleration: LiftAccelerationData?
     @State private var lastWeights: [UUID: Double] = [:]
     @State private var showStopConfirm = false
     @State private var pickerWeight: Double = 0
     @State private var countdownRemaining: Int? = 3
     @State private var restPreStarted = false
+    @State private var motionManager = MotionManager()
     @Environment(\.dismiss) private var dismiss
 
-    init(workout: Workout, healthKit: HealthKitManager) {
+    init(workout: Workout, healthKit: HealthKitManager, connectivity: WatchConnectivityManager) {
         self.workout = workout
         self.healthKit = healthKit
+        self.connectivity = connectivity
         self.steps = workout.steps()
     }
 
@@ -83,7 +88,7 @@ struct WorkoutPlayerView: View {
                 try? await Task.sleep(for: .seconds(1))
             }
             countdownRemaining = 0
-            WKInterfaceDevice.current().play(.start)
+            haptic(.notification, times: 2)
             try? await Task.sleep(for: .seconds(0.6))
             countdownRemaining = nil
             await healthKit.startWorkout()
@@ -102,7 +107,8 @@ struct WorkoutPlayerView: View {
         } else if let pending = pendingLift, workout.trackWeights {
             HStack(spacing: 8) {
                 Button("Skip") {
-                    logSet(exercise: pending.exercise, exerciseSet: pending.exerciseSet, setNumber: pending.setNumber, weight: nil)
+                    logSet(exercise: pending.exercise, exerciseSet: pending.exerciseSet, setNumber: pending.setNumber, weight: nil, accelerationData: pendingAcceleration)
+                    pendingAcceleration = nil
                     pendingLift = nil
                     advance()
                 }
@@ -111,7 +117,8 @@ struct WorkoutPlayerView: View {
 
                 Button("Log") {
                     let weight = WeightUnit.current.toKg(pickerWeight)
-                    logSet(exercise: pending.exercise, exerciseSet: pending.exerciseSet, setNumber: pending.setNumber, weight: weight)
+                    logSet(exercise: pending.exercise, exerciseSet: pending.exerciseSet, setNumber: pending.setNumber, weight: weight, accelerationData: pendingAcceleration)
+                    pendingAcceleration = nil
                     pendingLift = nil
                     advance()
                 }
@@ -176,7 +183,8 @@ struct WorkoutPlayerView: View {
                     .onAppear {
                         timedEndDate = Date().addingTimeInterval(Double(duration))
                         timedAutoAdvanced = false
-                        WKInterfaceDevice.current().play(.start)
+                        haptic(.notification, times: 2)
+                        if workout.trackAcceleration { motionManager.startTracking() }
                     }
                     .onChange(of: timedAutoAdvanced) { _, fired in
                         if fired { completeLift(exercise: exercise, exerciseSet: exerciseSet, setNumber: setNumber) }
@@ -184,12 +192,20 @@ struct WorkoutPlayerView: View {
                     .task(id: currentStepIndex) {
                         try? await Task.sleep(for: .seconds(duration))
                         if !timedAutoAdvanced {
-                            WKInterfaceDevice.current().play(.stop)
+                            haptic(.notification, times: 2)
                             timedAutoAdvanced = true
                         }
                     }
                 } else {
-                    LiftStepView(exercise: exercise, exerciseSet: exerciseSet, setNumber: setNumber)
+                    LiftStepView(
+                        exercise: exercise,
+                        exerciseSet: exerciseSet,
+                        setNumber: setNumber,
+                        currentAcceleration: workout.trackAcceleration ? motionManager.currentAcceleration : 0
+                    )
+                    .onAppear {
+                        if workout.trackAcceleration { motionManager.startTracking() }
+                    }
                 }
 
             case .rest(_, let nextName):
@@ -206,7 +222,7 @@ struct WorkoutPlayerView: View {
                         try? await Task.sleep(for: .seconds(remaining))
                     }
                     if !restAutoAdvanced {
-                        WKInterfaceDevice.current().play(.start)
+                        haptic(.start, times: 2)
                         restAutoAdvanced = true
                     }
                 }
@@ -227,7 +243,17 @@ struct WorkoutPlayerView: View {
                     .foregroundStyle(.secondary)
             }
         }
-        .task { await healthKit.endWorkout() }
+        .task {
+            await healthKit.endWorkout()
+            let session = WorkoutSession(
+                workoutId: workout.id,
+                startDate: workoutStartDate,
+                endDate: Date(),
+                state: .completed,
+                setLogs: setLogs
+            )
+            connectivity.sendSession(session)
+        }
     }
 
     // MARK: - Actions
@@ -248,16 +274,18 @@ struct WorkoutPlayerView: View {
             }
         }
         if isCompleted {
-            WKInterfaceDevice.current().play(.success)
+            haptic(.success, times: 3)
         }
     }
 
     private func completeLift(exercise: Exercise, exerciseSet: ExerciseSet, setNumber: Int) {
-        WKInterfaceDevice.current().play(.stop)
+        WKInterfaceDevice.current().play(.click)
+        let accelData = workout.trackAcceleration ? motionManager.stopTracking() : nil
         if workout.trackWeights && !exerciseSet.isTimed {
             let unit = WeightUnit.current
             let lastKg = lastWeights[exerciseSet.id] ?? exerciseSet.suggestedWeightKg
             pickerWeight = lastKg.map { unit.fromKg($0).rounded() } ?? unit.defaultWeight
+            pendingAcceleration = accelData
             pendingLift = (exercise, exerciseSet, setNumber)
             // Pre-start rest timer if next step is rest
             let nextIndex = currentStepIndex + 1
@@ -267,23 +295,35 @@ struct WorkoutPlayerView: View {
                 restAutoAdvanced = false
             }
         } else {
-            logSet(exercise: exercise, exerciseSet: exerciseSet, setNumber: setNumber, weight: nil)
+            logSet(exercise: exercise, exerciseSet: exerciseSet, setNumber: setNumber, weight: nil, accelerationData: accelData)
             advance()
+        }
+    }
+
+    private func haptic(_ type: WKHapticType, times: Int = 1) {
+        WKInterfaceDevice.current().play(type)
+        guard times > 1 else { return }
+        Task {
+            for _ in 1..<times {
+                try? await Task.sleep(for: .milliseconds(150))
+                WKInterfaceDevice.current().play(type)
+            }
         }
     }
 
     private func skipRest() {
         restAutoAdvanced = true
-        WKInterfaceDevice.current().play(.start)
+        WKInterfaceDevice.current().play(.click)
         advance()
     }
 
-    private func logSet(exercise: Exercise, exerciseSet: ExerciseSet, setNumber: Int, weight: Double?) {
+    private func logSet(exercise: Exercise, exerciseSet: ExerciseSet, setNumber: Int, weight: Double?, accelerationData: LiftAccelerationData? = nil) {
         if let w = weight { lastWeights[exerciseSet.id] = w }
         setLogs.append(SetLog(
             exerciseSetId: exerciseSet.id,
             setNumber: setNumber,
-            weightKg: weight
+            weightKg: weight,
+            accelerationData: accelerationData
         ))
     }
 }

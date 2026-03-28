@@ -11,6 +11,6 @@ struct SplitSetApp: App {
         WindowGroup {
             ContentView()
         }
-        .modelContainer(for: WorkoutModel.self)
+        .modelContainer(for: [WorkoutModel.self, SessionModel.self])
     }
 }

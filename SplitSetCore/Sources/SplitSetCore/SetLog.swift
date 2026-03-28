@@ -1,6 +1,6 @@
 import Foundation
 
-public struct SetLog: Identifiable, Codable, Sendable {
+public struct SetLog: Identifiable, Codable, Sendable, Equatable {
     public var id: UUID
     public var exerciseSetId: UUID
     public var setNumber: Int
@@ -8,6 +8,7 @@ public struct SetLog: Identifiable, Codable, Sendable {
     public var actualReps: Int?
     public var weightKg: Double?
     public var completedAt: Date
+    public var accelerationData: LiftAccelerationData?
 
     public init(
         id: UUID = UUID(),
@@ -15,7 +16,8 @@ public struct SetLog: Identifiable, Codable, Sendable {
         setNumber: Int,
         actualReps: Int? = nil,
         weightKg: Double? = nil,
-        completedAt: Date = Date()
+        completedAt: Date = Date(),
+        accelerationData: LiftAccelerationData? = nil
     ) {
         self.id = id
         self.exerciseSetId = exerciseSetId
@@ -23,5 +25,6 @@ public struct SetLog: Identifiable, Codable, Sendable {
         self.actualReps = actualReps
         self.weightKg = weightKg
         self.completedAt = completedAt
+        self.accelerationData = accelerationData
     }
 }

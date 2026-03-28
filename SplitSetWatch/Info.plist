@@ -17,13 +17,15 @@
 	<key>CFBundlePackageType</key>
 	<string>APPL</string>
 	<key>CFBundleShortVersionString</key>
-	<string>1.2</string>
+	<string>1.0</string>
 	<key>CFBundleVersion</key>
-	<string>29</string>
+	<string>15</string>
 	<key>NSHealthShareUsageDescription</key>
 	<string>SplitSet reads heart rate during workouts.</string>
 	<key>NSHealthUpdateUsageDescription</key>
 	<string>SplitSet saves workout data to Health.</string>
+	<key>NSMotionUsageDescription</key>
+	<string>SplitSet measures lift speed during sets.</string>
 	<key>WKApplication</key>
 	<true/>
 	<key>WKCompanionAppBundleIdentifier</key>

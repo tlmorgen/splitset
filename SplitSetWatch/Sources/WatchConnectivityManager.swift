@@ -18,6 +18,12 @@ final class WatchConnectivityManager: NSObject {
         WCSession.default.activate()
     }
 
+    func sendSession(_ session: WorkoutSession) {
+        guard WCSession.default.activationState == .activated,
+              let data = try? JSONEncoder().encode(session) else { return }
+        WCSession.default.transferUserInfo([ConnectivityMessage.sessionKey: data])
+    }
+
     private func update(from context: [String: Any]) {
         guard
             let data = context[ConnectivityMessage.workoutsKey] as? Data,

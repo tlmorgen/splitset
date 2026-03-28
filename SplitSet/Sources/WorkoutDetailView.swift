@@ -64,7 +64,14 @@ struct WorkoutDetailView: View {
                 )
             }
             ToolbarItem(placement: .primaryAction) {
-                Button("Edit") { showingEdit = true }
+                HStack(spacing: 16) {
+                    NavigationLink {
+                        WorkoutHistoryView(workout: workout)
+                    } label: {
+                        Image(systemName: "clock")
+                    }
+                    Button("Edit") { showingEdit = true }
+                }
             }
         }
         .sheet(isPresented: $showingEdit) {

@@ -5,6 +5,7 @@ struct LiftStepView: View {
     let exercise: Exercise
     let exerciseSet: ExerciseSet
     let setNumber: Int
+    var currentAcceleration: Double = 0
 
     var body: some View {
         ScrollView {
@@ -28,6 +29,18 @@ struct LiftStepView: View {
                     .foregroundStyle(.orange)
             }
 
+            if currentAcceleration > 0 {
+                HStack(spacing: 4) {
+                    Image(systemName: "waveform.path")
+                        .imageScale(.small)
+                    Text(String(format: "%.1fg", currentAcceleration))
+                        .monospacedDigit()
+                }
+                .font(.caption)
+                .foregroundStyle(accelerationColor)
+                .contentTransition(.numericText())
+            }
+
             if let kg = exerciseSet.suggestedWeightKg {
                 Text("\(WeightUnit.current.format(kg)) suggested")
                     .font(.caption)
@@ -43,5 +56,11 @@ struct LiftStepView: View {
         }
         .padding(.bottom, 50)
         }
+    }
+
+    private var accelerationColor: Color {
+        if currentAcceleration < 1.0 { return .green }
+        if currentAcceleration < 2.0 { return .yellow }
+        return .red
     }
 }

@@ -6,12 +6,23 @@ public struct Workout: Identifiable, Codable, Hashable, Sendable {
     public var exercises: [Exercise]
 
     public var trackWeights: Bool
+    public var trackAcceleration: Bool
 
-    public init(id: UUID = UUID(), name: String, exercises: [Exercise] = [], trackWeights: Bool = false) {
+    public init(id: UUID = UUID(), name: String, exercises: [Exercise] = [], trackWeights: Bool = false, trackAcceleration: Bool = false) {
         self.id = id
         self.name = name
         self.exercises = exercises
         self.trackWeights = trackWeights
+        self.trackAcceleration = trackAcceleration
+    }
+
+    public init(from decoder: Decoder) throws {
+        let container = try decoder.container(keyedBy: CodingKeys.self)
+        id = try container.decode(UUID.self, forKey: .id)
+        name = try container.decode(String.self, forKey: .name)
+        exercises = try container.decode([Exercise].self, forKey: .exercises)
+        trackWeights = try container.decodeIfPresent(Bool.self, forKey: .trackWeights) ?? false
+        trackAcceleration = try container.decodeIfPresent(Bool.self, forKey: .trackAcceleration) ?? false
     }
 
     /// Flattens exercises into an ordered sequence of steps for the watch player.

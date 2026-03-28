@@ -91,10 +91,31 @@ struct HelpView: View {
                         detail: "When weight tracking is on, use the Digital Crown to log the weight you used after each set. It pre-fills from your last session."
                     )
                     HelpRow(
+                        icon: "bolt.fill",
+                        color: .orange,
+                        title: "Lift Speed",
+                        detail: "Enable \"Track lift speed\" on a workout to measure acceleration during each set. A live g-force readout appears on the watch while you lift, and peak and average values are saved with your session."
+                    )
+                    HelpRow(
                         icon: "water.waves",
                         color: .cyan,
                         title: "Haptic Cues",
                         detail: "Haptics tell you when a set is done, rest starts and ends, and when the workout is complete — so you can stay focused without watching the screen."
+                    )
+                }
+
+                Section("History & Backup") {
+                    HelpRow(
+                        icon: "clock",
+                        color: .indigo,
+                        title: "Workout History",
+                        detail: "Completed sessions sync back to your iPhone automatically. Tap the clock icon on any workout to see a full history of past sessions with weights and lift speed per set."
+                    )
+                    HelpRow(
+                        icon: "square.and.arrow.up",
+                        color: .teal,
+                        title: "Export History",
+                        detail: "From the history screen, tap the share icon to export a Markdown file of all sessions for that workout — including exercise notes, weights, and acceleration data."
                     )
                 }
 

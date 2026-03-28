@@ -75,6 +75,7 @@ targets:
       - package: SplitSetCore
       - sdk: WatchConnectivity.framework
       - sdk: HealthKit.framework
+      - sdk: CoreMotion.framework
     info:
       path: SplitSetWatch/Info.plist
       properties:
@@ -83,6 +84,7 @@ targets:
         WKCompanionAppBundleIdentifier: com.tlmorgen.splitset
         NSHealthShareUsageDescription: "SplitSet reads heart rate during workouts."
         NSHealthUpdateUsageDescription: "SplitSet saves workout data to Health."
+        NSMotionUsageDescription: "SplitSet measures lift speed during sets."
     settings:
       base:
         PRODUCT_BUNDLE_IDENTIFIER: com.tlmorgen.splitset.watchkitapp

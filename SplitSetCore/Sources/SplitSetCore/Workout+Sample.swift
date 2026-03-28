@@ -56,7 +56,8 @@ public extension Workout {
                 restSeconds: 60
             )
         ],
-        trackWeights: true
+        trackWeights: true,
+        trackAcceleration: true
     )
 
     static let cardioSample = Workout(

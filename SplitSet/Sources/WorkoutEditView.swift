@@ -9,6 +9,7 @@ struct WorkoutEditView: View {
 
     @State private var name: String
     @State private var trackWeights: Bool
+    @State private var trackAcceleration: Bool
     @State private var exercises: [ExerciseModel]
     @State private var showingAddExercise = false
     @State private var editingExercise: ExerciseModel?
@@ -18,6 +19,7 @@ struct WorkoutEditView: View {
         editingWorkout = nil
         _name = State(initialValue: "")
         _trackWeights = State(initialValue: false)
+        _trackAcceleration = State(initialValue: false)
         _exercises = State(initialValue: [])
     }
 
@@ -26,6 +28,7 @@ struct WorkoutEditView: View {
         editingWorkout = workout
         _name = State(initialValue: workout.name)
         _trackWeights = State(initialValue: workout.trackWeights)
+        _trackAcceleration = State(initialValue: workout.trackAcceleration)
         _exercises = State(initialValue: workout.exercises.sorted { $0.order < $1.order })
     }
 
@@ -41,6 +44,7 @@ struct WorkoutEditView: View {
 
                 Section("Options") {
                     Toggle("Track weights on watch", isOn: $trackWeights)
+                    Toggle("Track lift speed on watch", isOn: $trackAcceleration)
                 }
 
                 Section {
@@ -122,10 +126,11 @@ struct WorkoutEditView: View {
         if let existing = editingWorkout {
             existing.name = name
             existing.trackWeights = trackWeights
+            existing.trackAcceleration = trackAcceleration
             existing.exercises = exercises
             reorder()
         } else {
-            let workout = WorkoutModel(name: name, trackWeights: trackWeights)
+            let workout = WorkoutModel(name: name, trackWeights: trackWeights, trackAcceleration: trackAcceleration)
             workout.exercises = exercises
             modelContext.insert(workout)
         }

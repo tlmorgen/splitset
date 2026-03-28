@@ -20,7 +20,7 @@ struct ContentView: View {
             }
             .navigationTitle("SplitSet")
             .navigationDestination(for: Workout.self) { workout in
-                WorkoutPlayerView(workout: workout, healthKit: healthKit)
+                WorkoutPlayerView(workout: workout, healthKit: healthKit, connectivity: connectivity)
             }
             .overlay {
                 if connectivity.workouts.isEmpty {

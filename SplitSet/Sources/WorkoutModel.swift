@@ -7,13 +7,15 @@ final class WorkoutModel {
     var syncId: UUID
     var name: String
     var trackWeights: Bool
+    var trackAcceleration: Bool
     var createdAt: Date
     @Relationship(deleteRule: .cascade) var exercises: [ExerciseModel]
 
-    init(name: String = "", trackWeights: Bool = false) {
+    init(name: String = "", trackWeights: Bool = false, trackAcceleration: Bool = false) {
         self.syncId = UUID()
         self.name = name
         self.trackWeights = trackWeights
+        self.trackAcceleration = trackAcceleration
         self.createdAt = Date()
         self.exercises = []
     }
@@ -23,7 +25,8 @@ final class WorkoutModel {
             id: syncId,
             name: name,
             exercises: exercises.sorted { $0.order < $1.order }.map { $0.toExercise() },
-            trackWeights: trackWeights
+            trackWeights: trackWeights,
+            trackAcceleration: trackAcceleration
         )
     }
 }
