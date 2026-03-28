@@ -18,6 +18,8 @@ struct WorkoutPlayerView: View {
     @State private var lastWeights: [UUID: Double] = [:]
     @State private var showStopConfirm = false
     @State private var pickerWeight: Double = 0
+    @State private var countdownRemaining: Int? = 3
+    @State private var restPreStarted = false
     @Environment(\.dismiss) private var dismiss
 
     init(workout: Workout, healthKit: HealthKitManager) {
@@ -74,7 +76,18 @@ struct WorkoutPlayerView: View {
             }
             Button("Cancel", role: .cancel) { }
         }
-        .task { await healthKit.startWorkout() }
+        .task {
+            for i in stride(from: 3, through: 1, by: -1) {
+                countdownRemaining = i
+                WKInterfaceDevice.current().play(.click)
+                try? await Task.sleep(for: .seconds(1))
+            }
+            countdownRemaining = 0
+            WKInterfaceDevice.current().play(.start)
+            try? await Task.sleep(for: .seconds(0.6))
+            countdownRemaining = nil
+            await healthKit.startWorkout()
+        }
         .onDisappear { Task { await healthKit.endWorkout() } }
     }
 
@@ -82,7 +95,9 @@ struct WorkoutPlayerView: View {
 
     @ViewBuilder
     private var bottomBar: some View {
-        if isCompleted {
+        if countdownRemaining != nil {
+            EmptyView()
+        } else if isCompleted {
             EmptyView()
         } else if let pending = pendingLift, workout.trackWeights {
             HStack(spacing: 8) {
@@ -129,10 +144,25 @@ struct WorkoutPlayerView: View {
 
     @ViewBuilder
     private var stepContent: some View {
-        if isCompleted {
+        if let count = countdownRemaining {
+            CountdownView(count: count)
+        } else if isCompleted {
             completedView
         } else if pendingLift != nil, workout.trackWeights {
-            WeightPickerView(displayWeight: $pickerWeight)
+            VStack(spacing: 4) {
+                WeightPickerView(displayWeight: $pickerWeight)
+                if restPreStarted {
+                    TimelineView(.periodic(from: .now, by: 1)) { context in
+                        let remaining = max(0, Int(restEndDate.timeIntervalSince(context.date)))
+                        if remaining > 0 {
+                            Text("Rest: \(remaining)s")
+                                .font(.caption2)
+                                .foregroundStyle(.secondary)
+                                .contentTransition(.numericText(countsDown: true))
+                        }
+                    }
+                }
+            }
         } else if let step = currentStep {
             switch step {
             case .lift(let exercise, let exerciseSet, let setNumber):
@@ -162,18 +192,19 @@ struct WorkoutPlayerView: View {
                     LiftStepView(exercise: exercise, exerciseSet: exerciseSet, setNumber: setNumber)
                 }
 
-            case .rest(let seconds, let nextName):
+            case .rest(_, let nextName):
                 RestStepView(restEndDate: restEndDate, nextExerciseName: nextName)
                 .onAppear {
-                    restEndDate = Date().addingTimeInterval(Double(seconds))
                     restAutoAdvanced = false
                 }
                 .onChange(of: restAutoAdvanced) { _, fired in
                     if fired { advance() }
                 }
                 .task(id: currentStepIndex) {
-                    guard case .rest(let secs, _) = currentStep else { return }
-                    try? await Task.sleep(for: .seconds(secs))
+                    let remaining = restEndDate.timeIntervalSince(Date())
+                    if remaining > 0 {
+                        try? await Task.sleep(for: .seconds(remaining))
+                    }
                     if !restAutoAdvanced {
                         WKInterfaceDevice.current().play(.start)
                         restAutoAdvanced = true
@@ -204,8 +235,17 @@ struct WorkoutPlayerView: View {
     private func advance() {
         currentStepIndex += 1
         if currentStepIndex < steps.count, case .rest(let secs, _) = steps[currentStepIndex] {
-            restEndDate = Date().addingTimeInterval(Double(secs))
-            restAutoAdvanced = false
+            if restPreStarted {
+                restPreStarted = false
+                if restEndDate <= Date() {
+                    // Rest already fully elapsed during weight logging — skip it
+                    currentStepIndex += 1
+                }
+                // else: restEndDate already set, restAutoAdvanced already false
+            } else {
+                restEndDate = Date().addingTimeInterval(Double(secs))
+                restAutoAdvanced = false
+            }
         }
         if isCompleted {
             WKInterfaceDevice.current().play(.success)
@@ -219,6 +259,13 @@ struct WorkoutPlayerView: View {
             let lastKg = lastWeights[exerciseSet.id] ?? exerciseSet.suggestedWeightKg
             pickerWeight = lastKg.map { unit.fromKg($0).rounded() } ?? unit.defaultWeight
             pendingLift = (exercise, exerciseSet, setNumber)
+            // Pre-start rest timer if next step is rest
+            let nextIndex = currentStepIndex + 1
+            if nextIndex < steps.count, case .rest(let secs, _) = steps[nextIndex] {
+                restEndDate = Date().addingTimeInterval(Double(secs))
+                restPreStarted = true
+                restAutoAdvanced = false
+            }
         } else {
             logSet(exercise: exercise, exerciseSet: exerciseSet, setNumber: setNumber, weight: nil)
             advance()

@@ -17,7 +17,10 @@ Most workout apps fight for screen time. SplitSet takes the opposite approach: d
 - **Timed sets** — duration-based sets with auto-countdown for cardio finishers, planks, or any timed work
 - **Live heart rate** — real-time heart rate monitoring throughout the workout via an active HealthKit workout session
 - **Weight tracking** — optionally log the weight used per set using the Digital Crown; pre-fills from your last session
+- **Rest pre-start** — rest countdown begins the moment you finish a set, running in the background while you log weight so no recovery time is wasted
 - **Haptic feedback** — haptics signal set completion, rest start/end, and workout completion so you don't have to watch the screen
+- **Workout countdown** — a 3-2-1-Go countdown with haptics eases you into each workout before the first set appears
+- **Scrollable notes** — exercise notes scroll with the Digital Crown so long cues are never truncated
 - **Automatic sync** — workouts sync from iPhone to Apple Watch via WatchConnectivity whenever you make changes
 
 ## How It Works
@@ -56,11 +59,12 @@ SplitSet/
 │   ├── HelpView            Getting started guide and tips
 │   └── Connectivity        WatchConnectivity sync to watch
 └── SplitSetWatch/          watchOS app — workout player
-    ├── WorkoutPlayerView   Step-by-step player with HR header
-    ├── LiftStepView        Active set — exercise, reps, weight
+    ├── WorkoutPlayerView   Step-by-step player with HR header and start countdown
+    ├── CountdownView       3-2-1-Go pre-workout countdown screen
+    ├── LiftStepView        Active set — exercise, reps, weight, scrollable notes
     ├── TimedSetView        Timed set with countdown
     ├── RestStepView        Rest countdown with next-up preview
-    ├── WeightPickerView    Digital Crown weight logger
+    ├── WeightPickerView    Digital Crown weight logger with live rest indicator
     └── HealthKitManager    HKWorkoutSession + live heart rate
 ```
 

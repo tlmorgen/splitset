@@ -7,6 +7,7 @@ struct LiftStepView: View {
     let setNumber: Int
 
     var body: some View {
+        ScrollView {
         VStack(alignment: .leading, spacing: 6) {
             Text("\(exercise.name) · \(setNumber)/\(exercise.sets.count)")
                 .font(.headline)
@@ -37,9 +38,10 @@ struct LiftStepView: View {
                 Text(notes)
                     .font(.caption2)
                     .foregroundStyle(.tertiary)
-                    .lineLimit(2)
             }
 
+        }
+        .padding(.bottom, 50)
         }
     }
 }
