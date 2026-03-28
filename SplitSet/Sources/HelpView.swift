@@ -20,7 +20,7 @@ struct HelpView: View {
                         Text("SplitSet")
                             .font(.title2.bold())
 
-                        Text("Build on iPhone. Lift on Apple Watch.")
+                        Text("Don't think, lift.")
                             .font(.subheadline)
                             .foregroundStyle(.secondary)
                     }
@@ -46,7 +46,7 @@ struct HelpView: View {
                         icon: "play.circle.fill",
                         color: .orange,
                         title: "Start Lifting",
-                        detail: "Select a workout on your watch and follow the guided steps. Your watch walks you through every set and rest period."
+                        detail: "Select a workout on your watch and follow the guided steps. Every decision is already made — just show up and lift."
                     )
                 }
 
@@ -101,7 +101,7 @@ struct HelpView: View {
                 Section {
                     HStack {
                         Spacer()
-                        Text("Made for the gym, not the couch.")
+                        Text("Every decision made. One job left.")
                             .font(.footnote)
                             .foregroundStyle(.tertiary)
                         Spacer()

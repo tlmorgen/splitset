@@ -1,12 +1,12 @@
 # SplitSet
 
-Build your workout on iPhone. Execute it on your wrist.
+Don't think, lift.
 
 SplitSet is a watchOS-first resistance training companion. Design your routines on iPhone with exercises, sets, reps, and rest periods — then leave your phone in your bag. SplitSet walks you through every set, rest, and rep directly from your Apple Watch, with live heart rate, haptic cues, and optional weight logging via the Digital Crown.
 
 ## Why SplitSet?
 
-Most workout apps fight for screen time. SplitSet takes the opposite approach: do the thinking on your phone, then forget about it. At the gym, your watch is your coach — it tells you what to lift, when to rest, and keeps you moving. No scrolling, no searching, no phone in your pocket.
+Most workout apps compete for your attention. SplitSet gets out of the way. Do the thinking once on your phone — what to lift, how many reps, how long to rest — then forget it. At the gym, your watch is your coach. It tells you what's next, counts down your rest, and keeps you moving. Your only job is the rep.
 
 ## Features
 
