@@ -40,7 +40,13 @@ public struct Workout: Identifiable, Codable, Hashable, Sendable {
 
                 if !isLastStep && exercise.restSeconds > 0 {
                     let nextName = isLastSet ? nextExerciseName : exercise.name
-                    result.append(.rest(seconds: exercise.restSeconds, nextName: nextName))
+                    let nextWeightKg: Double?
+                    if isLastSet {
+                        nextWeightKg = isLastExercise ? nil : exercises[exIdx + 1].sets.first?.suggestedWeightKg ?? nil
+                    } else {
+                        nextWeightKg = exercise.sets[setIdx + 1].suggestedWeightKg
+                    }
+                    result.append(.rest(seconds: exercise.restSeconds, nextName: nextName, nextWeightKg: nextWeightKg))
                 }
             }
         }

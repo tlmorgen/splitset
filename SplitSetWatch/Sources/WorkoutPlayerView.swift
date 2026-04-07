@@ -31,6 +31,7 @@ struct WorkoutPlayerView: View {
         self.healthKit = healthKit
         self.connectivity = connectivity
         self.steps = workout.steps()
+        self._lastWeights = State(initialValue: WatchWeightCache.load())
     }
 
     private var isCompleted: Bool { currentStepIndex >= steps.count }
@@ -208,8 +209,8 @@ struct WorkoutPlayerView: View {
                     }
                 }
 
-            case .rest(_, let nextName):
-                RestStepView(restEndDate: restEndDate, nextExerciseName: nextName)
+            case .rest(_, let nextName, let nextWeightKg):
+                RestStepView(restEndDate: restEndDate, nextExerciseName: nextName, nextWeightKg: nextWeightKg)
                 .onAppear {
                     restAutoAdvanced = false
                 }
@@ -260,7 +261,7 @@ struct WorkoutPlayerView: View {
 
     private func advance() {
         currentStepIndex += 1
-        if currentStepIndex < steps.count, case .rest(let secs, _) = steps[currentStepIndex] {
+        if currentStepIndex < steps.count, case .rest(let secs, _, _) = steps[currentStepIndex] {
             if restPreStarted {
                 restPreStarted = false
                 if restEndDate <= Date() {
@@ -289,7 +290,7 @@ struct WorkoutPlayerView: View {
             pendingLift = (exercise, exerciseSet, setNumber)
             // Pre-start rest timer if next step is rest
             let nextIndex = currentStepIndex + 1
-            if nextIndex < steps.count, case .rest(let secs, _) = steps[nextIndex] {
+            if nextIndex < steps.count, case .rest(let secs, _, _) = steps[nextIndex] {
                 restEndDate = Date().addingTimeInterval(Double(secs))
                 restPreStarted = true
                 restAutoAdvanced = false
@@ -318,7 +319,10 @@ struct WorkoutPlayerView: View {
     }
 
     private func logSet(exercise: Exercise, exerciseSet: ExerciseSet, setNumber: Int, weight: Double?, accelerationData: LiftAccelerationData? = nil) {
-        if let w = weight { lastWeights[exerciseSet.id] = w }
+        if let w = weight {
+            lastWeights[exerciseSet.id] = w
+            WatchWeightCache.save(weight: w, for: exerciseSet.id)
+        }
         setLogs.append(SetLog(
             exerciseSetId: exerciseSet.id,
             setNumber: setNumber,

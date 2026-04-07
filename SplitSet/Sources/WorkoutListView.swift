@@ -14,10 +14,10 @@ struct WorkoutListView: View {
         NavigationStack {
             mainContent
         }
-        .onChange(of: PhoneConnectivityManager.shared.receivedSession) { _, session in
-            guard let session else { return }
-            persistSession(session)
-            PhoneConnectivityManager.shared.receivedSession = nil
+        .onChange(of: PhoneConnectivityManager.shared.receivedSessions) { _, sessions in
+            guard !sessions.isEmpty else { return }
+            sessions.forEach { persistSession($0) }
+            PhoneConnectivityManager.shared.receivedSessions = []
         }
     }
 
@@ -60,6 +60,11 @@ struct WorkoutListView: View {
             #if DEBUG
             seedSampleData()
             #endif
+            let pending = PhoneConnectivityManager.shared.receivedSessions
+            if !pending.isEmpty {
+                pending.forEach { persistSession($0) }
+                PhoneConnectivityManager.shared.receivedSessions = []
+            }
             PhoneConnectivityManager.shared.syncWorkouts(workouts)
         }
         .onChange(of: workouts) {
@@ -203,6 +208,25 @@ struct WorkoutListView: View {
             model.setLogs.append(logModel)
         }
         modelContext.insert(model)
+
+        // Update suggested weights from logged weights (last log per set wins)
+        var latestWeights: [UUID: Double] = [:]
+        for log in session.setLogs {
+            if let w = log.weightKg {
+                latestWeights[log.exerciseSetId] = w
+            }
+        }
+        for (setId, weight) in latestWeights {
+            let descriptor = FetchDescriptor<ExerciseSetModel>(
+                predicate: #Predicate { $0.syncId == setId }
+            )
+            if let setModel = try? modelContext.fetch(descriptor).first {
+                setModel.suggestedWeightKg = weight
+            }
+        }
+
+        // Push updated workouts to the watch
+        PhoneConnectivityManager.shared.syncWorkouts(workouts)
     }
 
     #if DEBUG

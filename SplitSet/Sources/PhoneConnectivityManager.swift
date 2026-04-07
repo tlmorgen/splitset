@@ -9,7 +9,7 @@ final class PhoneConnectivityManager: NSObject {
     static let shared = PhoneConnectivityManager()
 
     var isWatchReachable = false
-    var receivedSession: WorkoutSession?
+    var receivedSessions: [WorkoutSession] = []
 
     private let session = WCSession.default
 
@@ -44,7 +44,7 @@ extension PhoneConnectivityManager: WCSessionDelegate {
             let decoded = try? JSONDecoder().decode(WorkoutSession.self, from: data)
         else { return }
         Task { @MainActor in
-            self.receivedSession = decoded
+            self.receivedSessions.append(decoded)
         }
     }
 
