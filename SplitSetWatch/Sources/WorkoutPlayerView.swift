@@ -128,16 +128,8 @@ struct WorkoutPlayerView: View {
             }
         } else if let step = currentStep {
             switch step {
-            case .lift(let exercise, let exerciseSet, let setNumber):
-                let tint: Color = exerciseSet.isTimed ? .purple : .blue
-                Button(action: {
-                    completeLift(exercise: exercise, exerciseSet: exerciseSet, setNumber: setNumber)
-                }) {
-                    Text("Done")
-                        .frame(maxWidth: .infinity)
-                }
-                .buttonStyle(.borderedProminent)
-                .tint(tint)
+            case .lift:
+                EmptyView()
 
             case .rest:
                 Button("Skip") {
@@ -197,6 +189,10 @@ struct WorkoutPlayerView: View {
                             timedAutoAdvanced = true
                         }
                     }
+                    .contentShape(Rectangle())
+                    .onTapGesture(count: 2) {
+                        completeLift(exercise: exercise, exerciseSet: exerciseSet, setNumber: setNumber)
+                    }
                 } else {
                     LiftStepView(
                         exercise: exercise,
@@ -206,6 +202,10 @@ struct WorkoutPlayerView: View {
                     )
                     .onAppear {
                         if workout.trackAcceleration { motionManager.startTracking() }
+                    }
+                    .contentShape(Rectangle())
+                    .onTapGesture(count: 2) {
+                        completeLift(exercise: exercise, exerciseSet: exerciseSet, setNumber: setNumber)
                     }
                 }
 

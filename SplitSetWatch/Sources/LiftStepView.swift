@@ -53,6 +53,10 @@ struct LiftStepView: View {
                     .foregroundStyle(.tertiary)
             }
 
+            Text("double-tap to complete")
+                .font(.caption2)
+                .foregroundStyle(.quaternary)
+
         }
         .padding(.bottom, 50)
         }

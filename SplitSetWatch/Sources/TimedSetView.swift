@@ -28,6 +28,10 @@ struct TimedSetView: View {
                         .foregroundStyle(.secondary)
                 }
 
+                Text("double-tap to complete")
+                    .font(.caption2)
+                    .foregroundStyle(.quaternary)
+
             }
         }
     }
